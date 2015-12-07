@@ -1,44 +1,40 @@
 #include <cassert>
 #include <iostream>
+#include <functional>
 
 #include <range/v3/all.hpp>
+using namespace ranges;
 
 #include "helpers.h"
 
 enum class Direction { NORTH, EAST, SOUTH, WEST };
 
 constexpr Direction direction_from_char(const char c) {
-  if (c == '^') {
-    return Direction::NORTH;
-  }
-  if (c == '>') {
-    return Direction::EAST;
-  }
-  if (c == 'v') {
-    return Direction::SOUTH;
-  }
-  if (c == '<') {
-    return Direction::WEST;
-  }
+  if (c == '^') { return Direction::NORTH; }
+  if (c == '>') { return Direction::EAST; }
+  if (c == 'v') { return Direction::SOUTH; }
+  if (c == '<') { return Direction::WEST; }
   assert(false);
 }
 
 std::ostream& operator<<(std::ostream& os, Direction direction) {
-  if (direction == Direction::NORTH) {
-    os << 'N';
-  } else if (direction == Direction::EAST) {
-    os << 'E';
-  } else if (direction == Direction::SOUTH) {
-    os << 'S';
-  } else if (direction == Direction::WEST) {
-    os << 'W';
-  }
+  if (direction == Direction::NORTH) { os << 'N'; }
+  else if (direction == Direction::EAST) { os << 'E'; }
+  else if (direction == Direction::SOUTH) { os << 'S'; }
+  else if (direction == Direction::WEST) { os << 'W'; }
   return os;
 }
 
 struct Point {
   int x, y;
 };
+
+bool operator<(Point lhs, Point rhs) {
+  if (lhs.x == rhs.x) {
+    return lhs.y < rhs.y;
+  }
+  return lhs.x < rhs.x;
+}
 
 bool operator==(Point lhs, Point rhs) {
   return lhs.x == rhs.x && lhs.y == rhs.y;
@@ -51,43 +47,55 @@ std::ostream& operator<<(std::ostream& os, Point p) {
 }
 
 Point move_in_direction(const Point& point, Direction direction) {
-  if (direction == Direction::NORTH) {
-    return Point{point.x, point.y - 1};
-  }
-  if (direction == Direction::EAST) {
-    return Point{point.x + 1, point.y};
-  }
-  if (direction == Direction::SOUTH) {
-    return Point{point.x, point.y + 1};
-  }
-  if (direction == Direction::WEST) {
-    return Point{point.x - 1, point.y};
-  }
+  if (direction == Direction::NORTH) { return Point{point.x, point.y - 1}; }
+  if (direction == Direction::EAST) { return Point{point.x + 1, point.y}; }
+  if (direction == Direction::SOUTH) { return Point{point.x, point.y + 1}; }
+  if (direction == Direction::WEST) { return Point{point.x - 1, point.y}; }
   assert(false);
 };
+
+struct Santa {
+  Point position;
+
+  auto operator()(Direction direction) {
+    auto p = position;
+    position = move_in_direction(position, direction);
+    return p;
+  }
+};
+
+auto count_unique_houses() {
+  return make_pipeable([](auto rng) {
+    auto houses = rng
+                | to_vector
+                | action::sort([](auto lhs, auto rhs) { return lhs < rhs; })
+                | action::unique;
+    return distance(houses);
+  });
+}
 
 int main(int argc, char* argv[]) {
   if (argc != 2) {
     return EXIT_FAILURE;
   }
-  using namespace ranges;
 
   auto data = helpers::read_file(argv[1]);
-  auto current_point = Point{0, 0};
-  auto houses = data | view::transform(direction_from_char) |
-                view::transform([&current_point](auto d) mutable {
-                  auto p = current_point;
-                  current_point = move_in_direction(current_point, d);
-                  return p;
-                }) |
-                to_vector | action::sort([](auto lhs, auto rhs) {
-                  if (lhs.x == rhs.x) {
-                    return lhs.y < rhs.y;
-                  }
-                  return lhs.x < rhs.x;
-                }) |
-                action::unique;
-  auto n_houses = distance(houses);
+  auto directions = data | view::transform(direction_from_char);
 
-  std::cout << "Individual houses: " << n_houses << '\n';
+
+  auto santa = Santa{{0, 0}};
+  auto visited_alone = directions
+                     | view::transform(santa)
+                     | count_unique_houses();
+
+  santa.position = {0, 0};
+  auto robot_santa = Santa{{0, 0}};
+  auto santas = std::vector<std::reference_wrapper<Santa>>{santa, robot_santa};
+  auto visited_split = view::zip_with(
+    [](auto dir, auto santa) {
+      return santa(dir);
+    }, directions, santas | view::cycle) | count_unique_houses();
+
+  std::cout << "Alone: " << visited_alone << '\n';
+  std::cout << "Split: " << visited_split << '\n';
 }
