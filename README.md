@@ -7,3 +7,6 @@ used to it.
 
 The input files are not provided in order to prevent clutter in the repository.
 Also, as far as I understand, they are different for each participant.
+
+## Compilation
+Adjust the Makefile to contain the path to `range-v3` on your system. Then it's as easy as `make`. All binary files end up in a folder called `bin` and take a file name as input.
