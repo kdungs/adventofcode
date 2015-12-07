@@ -32,18 +32,30 @@ auto number_to_vec(unsigned int n) {
   return std::move(res);
 }
 
+template <typename PRED>
+auto find_index(const std::vector<unsigned char>& data, PRED&& p) {
+  auto result = view::iota(1) | view::drop_while([&data, &p](auto n) {
+                  auto v = number_to_vec(n);
+                  auto c = view::concat(data, v) | to_vector;
+                  auto h = hash_md5(c);
+                  return !std::forward<PRED>(p)(h.data);
+                });
+
+  return *begin(result);
+}
+
 int main(int argc, char* argv[]) {
   if (argc != 2) {
     return EXIT_FAILURE;
   }
   auto data = helpers::read_file<std::vector<unsigned char>>(argv[1]);
-  auto result = view::iota(1) | view::drop_while([&data](auto n) {
-                  auto v = number_to_vec(n);
-                  auto c = view::concat(data, v) | to_vector;
-                  auto h = hash_md5(c);
-                  return h.data[0] != 0 || h.data[1] != 0 || h.data[2] >= 16;
-                });
+  auto i_5zeroes = find_index(data, [](const auto& digest) {
+    return digest[0] == 0 && digest[1] == 0 && digest[2] < 16;
+  });
+  auto i_6zeroes = find_index(data, [](const auto& digest) {
+    return all_of(digest | view::take(3), [](auto x) { return x == 0; });
+  });
 
-  auto xs = *begin(result);
-  std::cout << xs << '\n';
+  std::cout << "5 zeroes: " << i_5zeroes << '\n';
+  std::cout << "6 zeroes: " << i_6zeroes << '\n';
 }
