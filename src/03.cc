@@ -1,11 +1,12 @@
 #include <cassert>
-#include <iostream>
 #include <functional>
+#include <iostream>
 
 #include <range/v3/all.hpp>
-using namespace ranges;
 
 #include "helpers.h"
+
+using namespace ranges;
 
 enum class Direction { NORTH, EAST, SOUTH, WEST };
 
@@ -42,10 +43,6 @@ bool operator==(Point lhs, Point rhs) {
 
 bool operator!=(Point lhs, Point rhs) { return !(lhs == rhs); }
 
-std::ostream& operator<<(std::ostream& os, Point p) {
-  return os << '(' << p.x << ',' << p.y << ')';
-}
-
 Point move_in_direction(const Point& point, Direction direction) {
   if (direction == Direction::NORTH) { return Point{point.x, point.y - 1}; }
   if (direction == Direction::EAST) { return Point{point.x + 1, point.y}; }
@@ -68,7 +65,7 @@ auto count_unique_houses() {
   return make_pipeable([](auto rng) {
     auto houses = rng
                 | to_vector
-                | action::sort([](auto lhs, auto rhs) { return lhs < rhs; })
+                | action::sort(std::less<>{})
                 | action::unique;
     return distance(houses);
   });
@@ -82,19 +79,19 @@ int main(int argc, char* argv[]) {
   auto data = helpers::read_file(argv[1]);
   auto directions = data | view::transform(direction_from_char);
 
-
   auto santa = Santa{{0, 0}};
   auto visited_alone = directions
                      | view::transform(santa)
                      | count_unique_houses();
 
-  santa.position = {0, 0};
+  santa = Santa{{0, 0}};
   auto robot_santa = Santa{{0, 0}};
   auto santas = std::vector<std::reference_wrapper<Santa>>{santa, robot_santa};
   auto visited_split = view::zip_with(
-    [](auto dir, auto santa) {
-      return santa(dir);
-    }, directions, santas | view::cycle) | count_unique_houses();
+    [](auto dir, auto santa) { return santa(dir); },
+    directions,
+    santas | view::cycle
+  ) | count_unique_houses();
 
   std::cout << "Alone: " << visited_alone << '\n';
   std::cout << "Split: " << visited_split << '\n';
