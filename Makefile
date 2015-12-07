@@ -6,6 +6,10 @@ TARGETS=$(patsubst src/%.cc,bin/%,$(SOURCES))
 
 all: ${TARGETS}
 
+bin/04: src/04.cc
+	@mkdir -p bin/
+	${CXX} ${CXXFLAGS} -lcrypto -o $@ $^
+
 bin/%: src/%.cc
 	@mkdir -p bin/
 	${CXX} ${CXXFLAGS} -o $@ $^
