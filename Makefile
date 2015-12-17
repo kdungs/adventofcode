@@ -10,6 +10,10 @@ bin/04: src/04.cc
 	@mkdir -p bin/
 	${CXX} ${CXXFLAGS} -lcrypto -o $@ $^
 
+bin/06: src/06.cc
+	@mkdir -p bin/
+	${CXX} ${CXXFLAGS} -lboost_regex-mt -o $@ $^
+
 bin/%: src/%.cc
 	@mkdir -p bin/
 	${CXX} ${CXXFLAGS} -o $@ $^
