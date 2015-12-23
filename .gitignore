@@ -1,4 +1,9 @@
 inputs/
+assignments/
+
+# Python stuff
+*.pyc
+__pycache__/
 
 # Compiled Object files
 *.slo
