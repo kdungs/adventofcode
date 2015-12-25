@@ -31,21 +31,23 @@ rings = [
     Item('Damage +3',     100, 3, 0)
 ]
 
-ring_combinations = sorted(
-    it.chain(
+def total_cost(items):
+    return sum([i.cost for i in items])
+
+def ring_combinations():
+    return it.chain(
         [(rings[0], rings[0])],
         it.combinations(rings, 2)
-    ),
-    key=lambda rs: sum([r.cost for r in rs])
-)
+    )
 
-all_combinations = sorted(
-    map(
-        lambda cs: [cs[0], cs[1], cs[2][0], cs[2][1]],
-        it.product(weapons, armors, ring_combinations),
-    ),
-    key=lambda cs: sum([c.cost for c in cs])
-)
+def all_combinations():
+    return sorted(
+        map(
+            lambda cs: [cs[0], cs[1], cs[2][0], cs[2][1]],
+            it.product(weapons, armors, ring_combinations()),
+        ),
+        key=total_cost
+    )
 
 def attack(p1, p2):
     dmg = p1.damage - p2.defense
@@ -72,5 +74,8 @@ def not_(f):
         return not f(*args, **kwargs)
     return not_impl
 
-ac = it.dropwhile(not_(fight_with_items), all_combinations)
-print(sum([i.cost for i in next(ac)]))
+is1 = next(it.dropwhile(not_(fight_with_items), all_combinations()))
+print(total_cost(is1))
+
+is2 = next(it.dropwhile(fight_with_items, reversed(all_combinations())))
+print(total_cost(is2))
