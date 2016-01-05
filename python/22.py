@@ -9,6 +9,7 @@ Boss = namedtuple('Boss', ['hp', 'dmg'])
 def compose(f, g):
     def compose_impl(*args, **kwargs):
         return f(*g(*args, **kwargs))
+    return compose_impl
 
 def damage_spell(damage):
     def damage_spell_impl(player, boss):
@@ -79,7 +80,6 @@ class Fight(object):
         self.cleanups = {}
 
     def set_state(self, state):
-        """ Make sure whatever state (≠ FIGHTING) is set first is kept. """
         if self.state != FightState.FIGHTING:
             return
         self.state = state
@@ -158,6 +158,21 @@ class Fight(object):
             copy.apply_(boss_damage)
         return [copy for _, copy in copies]
 
+    def fight_random_round(self):
+        self.hard_mode()
+        self.start_of_turn()
+        if self.state != FightState.FIGHTING:
+            return
+        try:
+            spell = choice(self.allowed_spells())
+        except:
+            self.state = FightState.PLAYER_LOST
+            return
+        self.cast_spell(spell)
+        self.start_of_turn()
+        self.apply_(boss_damage)
+
+
 
 def flatten(listOfLists):
     "Flatten one level of nesting"
@@ -176,5 +191,6 @@ def find_min_mana(difficulty):
                      and f.totalManaSpent < minMana]
     return minMana
 
-print(find_min_mana('easy'))
-print(find_min_mana('hard'))
+if __name__ == '__main__':
+    print(find_min_mana('easy'))
+    print(find_min_mana('hard'))
