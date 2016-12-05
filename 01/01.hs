@@ -51,9 +51,6 @@ applyInstruction (Step pos dir) (Instruction rot steps) = Step (move pos newdir 
 applyInstructions :: Step -> [Instruction] -> Step
 applyInstructions s0 instructions = foldl applyInstruction s0 instructions
 
-applyInstructions' :: Step -> [Instruction] -> [Step]
-applyInstructions' s0 instructions = scanl applyInstruction s0 instructions
-
 findFinalPosition :: [Instruction] -> Position
 findFinalPosition input = pos where (Step pos _) = applyInstructions defaultStep input
 
