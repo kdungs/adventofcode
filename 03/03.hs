@@ -9,6 +9,21 @@ possible (x, y, z) = all possible' (permutations [x, y, z]) where
 countPossible :: [(Int, Int, Int)] -> Int
 countPossible ts = length (filter possible ts)
 
+-- Part 2.
+stride :: Int -> [a] -> [a]
+stride _ [] = []
+stride n (x:xs) = x : stride n (drop (n-1) xs)
+
+groupsOf3 :: [a] -> [(a, a, a)]
+groupsOf3 xs = zip3 as bs cs where
+  as = stride 3 xs
+  bs = stride 3 (drop 1 xs)
+  cs = stride 3 (drop 2 xs)
+
+reformatTriples :: [(Int, Int, Int)] -> [(Int, Int, Int)]
+reformatTriples ts = groupsOf3 (a ++ b ++ c) where
+  (a, b, c) = unzip3 ts
+
 -- Parser.
 parseSeparator :: Parser ()
 parseSeparator = skipMany (space <|> newline)
@@ -38,5 +53,7 @@ parseFile = do
 main = do
          input <- getContents
          let program = parse parseFile "" input
-         let result = countPossible <$> program
-         putStrLn . show $ result
+         let result1 = countPossible <$> program
+         putStrLn . show $ result1
+         let result2 = countPossible <$> reformatTriples <$> program
+         putStrLn . show $ result2
