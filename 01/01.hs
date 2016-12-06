@@ -57,6 +57,28 @@ findFinalPosition input = pos where (Step pos _) = applyInstructions defaultStep
 totalBlocks :: Position -> Int
 totalBlocks (Position x y) = (abs x) + (abs y)
 
+-- Part 2.
+data PS = Final Position | Current Position [Position] deriving (Show)
+
+moveOne :: PS -> Direction -> PS
+moveOne (Final p) _ = Final p
+moveOne (Current p@(Position x y) ps) d = case (elem newp ps) of
+                                            True -> Final newp
+                                            False -> Current newp (newp:ps)
+                                          where newp = move p d 1
+
+move2 :: PS -> Direction -> Int -> PS
+move2 p d n = case n of
+                0 -> p
+                _ -> move2 (moveOne p d) d (n - 1)
+
+app2 :: (PS, Direction) -> Instruction -> (PS, Direction)
+app2 (p, d) (Instruction r n) = (move2 p newdir n, newdir) where newdir = turn r d
+
+blocks2 :: (PS, Direction) -> Maybe Int
+blocks2 (Current _ _, _) = Nothing
+blocks2 (Final p, _) = Just (totalBlocks p)
+
 -- Deal with input.
 convertRotation :: Char -> Rotation
 convertRotation c = case (c) of
@@ -90,3 +112,5 @@ main = do
          line <- getLine
          let inss = parse parseInstructions "" line
          putStrLn (show (totalBlocks <$> findFinalPosition <$> inss))
+         let result2 = blocks2 <$> foldl app2 (Current (Position 0 0) [], North) <$> inss
+         putStrLn . show $ result2
