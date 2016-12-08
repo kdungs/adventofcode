@@ -1,4 +1,4 @@
-# (λ adventofcode -> 2016)
+# (λ adventofcode → 2016)
 
 Solving [Advent of Code 2016](https://adventofcode.com/) using
 [Haskell](https://www.haskell.org/).
