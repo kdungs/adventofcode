@@ -8,3 +8,11 @@ leaderboard nor do I pride myself on writing extremely performant Haskell code.
 This is merely an exercise in using Haskell for some "real world" applications.
 Feel free to open issues whenever you see room for improvement but please
 provide explanations. ☺
+
+Running the programs is as easy as
+
+```bash
+stack build
+stack exec 01 < inputs/01.txt
+stack exec 02 < inputs/02.txt
+…```
