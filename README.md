@@ -15,4 +15,5 @@ Running the programs is as easy as
 stack build
 stack exec 01 < inputs/01.txt
 stack exec 02 < inputs/02.txt
-…```
+…
+```
