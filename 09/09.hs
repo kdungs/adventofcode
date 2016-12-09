@@ -1,10 +1,18 @@
 import Text.ParserCombinators.Parsec
 
-int :: Parser Int
-int = read <$> many1 digit
-
 data Exp = Txt String | Rep Int Int [Exp] deriving Show
 
+expLength1 :: Exp -> Int
+expLength1 e = case e of
+  (Txt s) -> length s
+  (Rep n r _) -> n * r
+  
+expLength2 :: Exp -> Int
+expLength2 e = case e of
+  (Txt s) -> length s
+  (Rep _ r se) -> r * (sum . map expLength2 $ se)
+
+-- Parser.
 exps :: Parser [Exp]
 exps = many (txt <|> rep)
 
@@ -24,16 +32,10 @@ rep = do
     (Right es) -> return (Rep n r es)
     (Left _) -> fail "Could not parse subexpr."
   
-expLength1 :: Exp -> Int
-expLength1 e = case e of
-  (Txt s) -> length s
-  (Rep n r _) -> n * r
-  
-expLength2 :: Exp -> Int
-expLength2 e = case e of
-  (Txt s) -> length s
-  (Rep _ r se) -> r * (sum . map expLength2 $ se)
-  
+int :: Parser Int
+int = read <$> many1 digit
+
+-- Main.
 main = do
   input <- getLine
   let es = parse exps "" input
