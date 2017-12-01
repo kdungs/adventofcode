@@ -10,19 +10,12 @@ int ProcessPair(const char a, const char b) {
   return a - '0';
 }
 
-int SolvePart1(const std::string& x) {
-  return ProcessPair(x.front(), x.back()) +
-         std::inner_product(std::begin(x), std::end(x) - 1,
-                            std::begin(x) + 1, 0, std::plus<int>(),
-                            ProcessPair);
-}
-
-int SolvePart2(const std::string& x) {
+int Solve(const std::string& x, const int offset) {
   const int size = x.size();
   const std::string ds = x + x;
-  return std::inner_product(std::begin(ds), std::begin(ds) + size,
-                            std::begin(ds) + (size / 2), 0, std::plus<int>(),
-                            ProcessPair);
+  const auto left = std::begin(ds);
+  return std::inner_product(left, left + size, left + offset, 0,
+                            std::plus<int>(), ProcessPair);
 }
 
 int main(int argc, char *argv[]) {
@@ -30,6 +23,6 @@ int main(int argc, char *argv[]) {
     return EXIT_FAILURE;
   }
   const std::string input(argv[1]);
-  std::cout << SolvePart1(input) << '\n';
-  std::cout << SolvePart2(input) << '\n';
+  std::cout << Solve(input, 1) << '\n';
+  std::cout << Solve(input, input.size() / 2) << '\n';
 }
