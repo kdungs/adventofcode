@@ -58,7 +58,7 @@ func EvalComparison(cmp string, a int, b int) (bool, error) {
 }
 
 func main() {
-	file, err := os.Open("input/08.txt")
+	file, err := os.Open("input.txt")
 	if err != nil {
 		log.Fatal(err)
 	}

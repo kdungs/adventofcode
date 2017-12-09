@@ -19,6 +19,6 @@ def evenlydivisiblesum(data):
   return int(sum(map(perrow, data)))
 
 if __name__ == '__main__':
-  data = np.genfromtxt('input/02.txt')
+  data = np.genfromtxt('input.txt')
   print(checksum(data))
   print(evenlydivisiblesum(data))

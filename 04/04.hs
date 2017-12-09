@@ -17,7 +17,7 @@ countGoodPasswords f pws = length (filter f pws)
 
 main :: IO ()
 main = do
-  input <- readFile "input/04.txt"
+  input <- readFile "input.txt"
   let pws = lines input
   putStrLn . show $ countGoodPasswords isGoodPassword pws
   putStrLn . show $ countGoodPasswords isGoodPassword' pws
