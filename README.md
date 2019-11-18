@@ -7,6 +7,6 @@ languages and technologies. Here's a short overview:
 
  - [2019](2019/): _TBD_
  - [2018](2018/): C++14 ([Bazel](https://bazel.io) build system)
- - [2017](2017/): C++, Python, Haskell, Go, Java, Maths
+ - [2017](2017/): C++, Python, Haskell, Go, Java, C, Maths
  - [2016](2016/): Haskell
  - [2015](2015/): C++14 w/ range-v3 and Python
