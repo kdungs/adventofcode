@@ -5,6 +5,9 @@ assignments/
 *.pyc
 __pycache__/
 
+# Prerequisites
+*.d
+
 # Compiled Object files
 *.slo
 *.lo
@@ -22,6 +25,7 @@ __pycache__/
 
 # Fortran module files
 *.mod
+*.smod
 
 # Compiled Static libraries
 *.lai
