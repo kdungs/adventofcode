@@ -5,7 +5,7 @@ challenges over the years. For historic reasons, the solutions for each year
 have a dedicated structure and might make use of several different programming
 languages and technologies. Here's a short overview:
 
- - [2019](2019/): _TBD_
+ - [2019](2019/): Haskell (_so far…_)
  - [2018](2018/): C++14 ([Bazel](https://bazel.io) build system)
  - [2017](2017/): C++, Python, Haskell, Go, Java, C, Maths
  - [2016](2016/): Haskell
