@@ -36,7 +36,7 @@ operationFromNumber 4 = Just Out
 operationFromNumber 5 = Just JmpT
 operationFromNumber 6 = Just JmpF
 operationFromNumber 7 = Just Less
-operationFromNumber 8 = Just Eql 
+operationFromNumber 8 = Just Eql
 operationFromNumber 99 = Just Done
 operationFromNumber _ = Nothing
 
@@ -118,7 +118,7 @@ applyInstruction (Instruction op modes) (Context mem fptr ins outs) = do
   let newMem = setMemory dst val mem
   pure (Context newMem (fptr + 4) ins outs)
 
-execute :: Context -> Maybe Context 
+execute :: Context -> Maybe Context
 execute ctx@(Context mem fptr ins outs) = do
   instruction <- instructionAt fptr mem
   case op instruction of
