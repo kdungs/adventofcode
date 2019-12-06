@@ -1,5 +1,6 @@
 import Text.ParserCombinators.Parsec
 import qualified Data.Map.Strict as Map
+import qualified Data.Set as Set
 
 data Body = Body String deriving (Eq, Ord, Show)
 type OrbitMap = Map.Map Body Body
@@ -16,11 +17,23 @@ countOrbits os b cs = do
   cb <- Map.lookup ob newCs
   pure (Map.insert b (cb + 1) newCs)
 
-bfsSteps :: OrbitMap -> Body -> Body -> Maybe Int
-bfsSteps os a b
-  | a == b = Just 0
-  | otherwise = do
-    
+
+pathToCom :: OrbitMap -> Body -> [Body]
+pathToCom _ (Body "COM") = []
+pathToCom os b = t:(pathToCom os t)
+  where t = case Map.lookup b os of
+              Just v -> v
+              Nothing -> error ("Could not lookup body " ++ show b)
+
+symmetricDifference :: Ord a => Set.Set a -> Set.Set a -> Set.Set a
+symmetricDifference lhs rhs = (Set.union lhs rhs) `Set.difference` (Set.intersection lhs rhs)
+
+pathLength :: OrbitMap -> Body -> Body -> Int
+pathLength os b1 b2 = Set.size (symmetricDifference lset rset)
+  where lpath = pathToCom os b1
+        lset = Set.fromList lpath
+        rpath = pathToCom os b2
+        rset = Set.fromList rpath
 
 -- Parsers
 body :: Parser Body
@@ -44,3 +57,4 @@ main = do
   let cm = counts <$> os
   let res = (\x -> sum . Map.elems <$> x) <$> cm
   putStrLn . show $ res
+  putStrLn . show $ (\m -> pathLength m (Body "YOU") (Body "SAN")) <$> os
