@@ -1,10 +1,11 @@
-import Text.ParserCombinators.Parsec
-import qualified Data.List as List
+import qualified Data.List                     as List
+import           Text.ParserCombinators.Parsec
 
 digits :: Int -> [Int]
 digits i = List.reverse (rdigits i)
-  where rdigits 0 = []
-        rdigits x = (x `mod` 10):(rdigits (x `div` 10))
+  where
+    rdigits 0 = []
+    rdigits x = x `mod` 10 : rdigits (x `div` 10)
 
 -- Part 1
 groupLengths :: [Int] -> [Int]
@@ -14,24 +15,25 @@ hasMatchingAdjacentDigits :: [Int] -> Bool
 hasMatchingAdjacentDigits ds = List.any (>= 2) (groupLengths ds)
 
 isMonotonous :: [Int] -> Bool
-isMonotonous (x:y:rest) = (x <= y) && (isMonotonous (y:rest))
-isMonotonous _ = True
+isMonotonous (x:y:rest) = x <= y && isMonotonous (y : rest)
+isMonotonous _          = True
 
 isCandidate :: Int -> Bool
-isCandidate i = (List.length ds == 6)
-             && (hasMatchingAdjacentDigits ds)
-             && (isMonotonous ds)
-  where ds = digits i
+isCandidate i =
+  List.length ds == 6 && hasMatchingAdjacentDigits ds && isMonotonous ds
+  where
+    ds = digits i
 
 countInRange :: (Int -> Bool) -> (Int, Int) -> Int
-countInRange pred (left, right) = List.sum (List.map (fromEnum . pred) [left..right])
+countInRange pred (left, right) =
+  List.sum (List.map (fromEnum . pred) [left .. right])
 
 -- Part 2
 hasTwoMatchingAdjacentDigits :: [Int] -> Bool
-hasTwoMatchingAdjacentDigits ds = List.any (== 2) (groupLengths ds)
+hasTwoMatchingAdjacentDigits ds = 2 `List.elem` groupLengths ds
 
 isCandidate2 :: Int -> Bool
-isCandidate2 i = (isCandidate i) && (hasTwoMatchingAdjacentDigits (digits i))
+isCandidate2 i = isCandidate i && hasTwoMatchingAdjacentDigits (digits i)
 
 -- Parser
 int :: Parser Int
@@ -48,5 +50,5 @@ main :: IO ()
 main = do
   contents <- getContents
   let r = parse range "" contents
-  putStrLn . show $ (countInRange isCandidate) <$> r
-  putStrLn . show $ (countInRange isCandidate2) <$> r
+  print $ countInRange isCandidate <$> r
+  print $ countInRange isCandidate2 <$> r
