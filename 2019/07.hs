@@ -1,4 +1,3 @@
-{-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE TupleSections      #-}
 
 import           Control.Monad                        (mapM, sequence)
@@ -18,19 +17,16 @@ data Operation
   | JmpF
   | Less
   | Eql
-  deriving (Show)
 
 data ParameterMode
   = PositionMode
   | ImmediateMode
-  deriving (Show)
 
 data Instruction =
   Instruction
     { op    :: Operation
     , modes :: [ParameterMode]
     }
-  deriving (Show)
 
 applyBinaryOperation :: Operation -> Int -> Int -> Maybe Int
 applyBinaryOperation Add x y = Just (x + y)
@@ -107,7 +103,6 @@ data Context =
     , inputs  :: [Int]
     , outputs :: [Int]
     }
-  deriving (Show)
 
 modeFor :: Int -> [ParameterMode] -> ParameterMode
 modeFor x ms
