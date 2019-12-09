@@ -5,13 +5,13 @@ import qualified Data.List                     as List
 import qualified Data.Map.Strict               as Map
 import           Text.ParserCombinators.Parsec (parse)
 
-modify :: Int -> Int -> Memory -> Memory
+modify :: Integer -> Integer -> Memory -> Memory
 modify x1 x2 = setM 1 x1 . setM 2 x2
 
-initVmWithModification :: Memory -> Int -> Int -> VirtualMachine
+initVmWithModification :: Memory -> Integer -> Integer -> VirtualMachine
 initVmWithModification mem x1 x2 = initVm (modify x1 x2 mem) []
 
-findSolution :: Memory -> Int -> Maybe (Int, Int)
+findSolution :: Memory -> Integer -> Maybe (Integer, Integer)
 findSolution prog target = headM (List.dropWhile isNotSolution space)
   where
     space = [(x, y) | x <- [0 .. 99], y <- [0 .. 99]]

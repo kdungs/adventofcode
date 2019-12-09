@@ -22,12 +22,13 @@ data Operation
   | Multiply
   | Less
   | Equals
+  | AdjustRelativeBase
   deriving (Show)
 
-operationFromNumber :: Int -> Maybe Operation
+operationFromNumber :: Integer -> Maybe Operation
 operationFromNumber x = Map.lookup x opMap
   where
-    opMap :: Map.Map Int Operation
+    opMap :: Map.Map Integer Operation
     opMap =
       Map.fromList
         [ (1, Add)
@@ -38,23 +39,26 @@ operationFromNumber x = Map.lookup x opMap
         , (6, JumpFalse)
         , (7, Less)
         , (8, Equals)
+        , (9, AdjustRelativeBase)
         , (99, Done)
         ]
 
 data Mode
   = Reference
   | Value
+  | Relative
   deriving (Show)
 
-modeFromNumber :: Int -> Maybe Mode
+modeFromNumber :: Integer -> Maybe Mode
 modeFromNumber 0 = Just Reference
 modeFromNumber 1 = Just Value
+modeFromNumber 2 = Just Relative
 modeFromNumber _ = Nothing
 
-modesFromNumber :: Int -> Maybe [Mode]
+modesFromNumber :: Integer -> Maybe [Mode]
 modesFromNumber x = mapM modeFromNumber (rdigits x)
   where
-    rdigits :: Int -> [Int]
+    rdigits :: Integer -> [Integer]
     rdigits 0 = []
     rdigits x = x `mod` 10 : rdigits (x `div` 10)
 
@@ -65,7 +69,7 @@ data Instruction =
     }
   deriving (Show)
 
-instructionFromNumber :: Int -> Maybe Instruction
+instructionFromNumber :: Integer -> Maybe Instruction
 instructionFromNumber x = do
   op <- operationFromNumber (x `mod` 100)
   ms <- modesFromNumber (x `div` 100)
@@ -74,58 +78,73 @@ instructionFromNumber x = do
 modeFor :: Int -> [Mode] -> Mode
 modeFor = atWithDefault Reference
 
-type Position = Int
+type Position = Integer
 
-type Memory = Map.Map Position Int
+type Memory = Map.Map Position Integer
 
-value :: Position -> Memory -> Maybe Int
-value = Map.lookup
+value :: Position -> Memory -> Maybe Integer
+value pos mem
+  | pos < 0 = Nothing
+  | otherwise = Just (Map.findWithDefault 0 pos mem)
 
-dereference :: Position -> Memory -> Maybe Int
-dereference pos mem = value pos mem >>= \ptr -> Map.lookup ptr mem
+dereference :: Position -> Memory -> Maybe Integer
+dereference pos mem = do
+  ptr <- value pos mem
+  value ptr mem
 
-getM :: Mode -> Position -> Memory -> Maybe Int
-getM Reference = dereference
-getM Value     = value
+relative :: Position -> Position -> Memory -> Maybe Integer
+relative base pos mem = dereference (base + pos) mem
 
-setM :: Position -> Int -> Memory -> Memory
+getM :: Mode -> Position -> Position -> Memory -> Maybe Integer
+getM Reference _ = dereference
+getM Value     _ = value
+getM Relative  base = relative base
+
+setM :: Position -> Integer -> Memory -> Memory
 setM = Map.insert
 
 data VirtualMachine =
   VirtualMachine
     { memory  :: Memory
     , iptr    :: Position
-    , inputs  :: [Int]
-    , outputs :: [Int]
+    , rbase :: Position
+    , inputs  :: [Integer]
+    , outputs :: [Integer]
     }
   deriving (Show)
 
-initVm :: Memory -> [Int] -> VirtualMachine
+getVM :: Mode -> Position -> VirtualMachine -> Maybe Integer
+getVM mode pos vm = getM mode (rbase vm) pos (memory vm)
+
+initVm :: Memory -> [Integer] -> VirtualMachine
 initVm mem is =
-  VirtualMachine {memory = mem, iptr = 0, inputs = is, outputs = []}
+  VirtualMachine {memory = mem, iptr = 0, rbase = 0, inputs = is, outputs = []}
 
 unary ::
-     (Int -> VirtualMachine -> Maybe VirtualMachine)
+     (Integer -> VirtualMachine -> Maybe VirtualMachine)
   -> [Mode]
   -> VirtualMachine
   -> Maybe VirtualMachine
 unary f ms vm = do
-  var <- getM (modeFor 0 ms) (iptr vm + 1) (memory vm)
+  var <- getVM (modeFor 0 ms) (iptr vm + 1) vm
   newVm <- f var vm
   pure newVm {iptr = iptr newVm + 2}
 
-input :: Int -> VirtualMachine -> Maybe VirtualMachine
+input :: Integer -> VirtualMachine -> Maybe VirtualMachine
 input ref vm = do
   input <- headM (inputs vm)
   pure vm {memory = setM ref input (memory vm), inputs = tail (inputs vm)}
 
-output :: Int -> VirtualMachine -> Maybe VirtualMachine
+output :: Integer -> VirtualMachine -> Maybe VirtualMachine
 output val vm = Just vm {outputs = val : outputs vm}
 
-jmp :: (Int -> Bool) -> [Mode] -> VirtualMachine -> Maybe VirtualMachine
+adjRBase :: Integer -> VirtualMachine -> Maybe VirtualMachine
+adjRBase val vm = Just vm { rbase = rbase vm + val }
+
+jmp :: (Integer -> Bool) -> [Mode] -> VirtualMachine -> Maybe VirtualMachine
 jmp pred ms vm = do
-  val <- getM (modeFor 0 ms) (iptr vm + 1) (memory vm)
-  dst <- getM (modeFor 1 ms) (iptr vm + 2) (memory vm)
+  val <- getVM (modeFor 0 ms) (iptr vm + 1) vm
+  dst <- getVM (modeFor 1 ms) (iptr vm + 2) vm
   pure
     vm
       { iptr =
@@ -135,10 +154,10 @@ jmp pred ms vm = do
       }
 
 evalWrite ::
-     (Int -> Int -> Int) -> [Mode] -> VirtualMachine -> Maybe VirtualMachine
-evalWrite f ms vm@(VirtualMachine mem i _ _) = do
-  lhs <- getM (modeFor 0 ms) (i + 1) mem
-  rhs <- getM (modeFor 1 ms) (i + 2) mem
+     (Integer -> Integer -> Integer) -> [Mode] -> VirtualMachine -> Maybe VirtualMachine
+evalWrite f ms vm@(VirtualMachine mem i _ _ _) = do
+  lhs <- getVM (modeFor 0 ms) (i + 1) vm
+  rhs <- getVM (modeFor 1 ms) (i + 2) vm
   dst <- value (i + 3) mem
   pure vm {memory = setM dst (f lhs rhs) mem, iptr = i + 4}
 
@@ -149,18 +168,19 @@ execute (Instruction i ms) = callTable i ms
     callTable Done      = \_ vm -> Just vm
     callTable Input     = unary input
     callTable Output    = unary output
+    callTable AdjustRelativeBase = unary adjRBase
     callTable JumpTrue  = jmp (/= 0)
     callTable JumpFalse = jmp (== 0)
     callTable Add       = evalWrite (+)
     callTable Multiply  = evalWrite (*)
-    callTable Less      = evalWrite (\x y -> fromEnum (x < y))
-    callTable Equals    = evalWrite (\x y -> fromEnum (x == y))
+    callTable Less      = evalWrite (\x y -> if (x < y) then 1 else 0)
+    callTable Equals    = evalWrite (\x y -> if (x == y) then 1 else 0)
 
 step :: VirtualMachine -> Maybe (Operation, VirtualMachine)
-step m@(VirtualMachine mem i is os) = do
-  opcode <- value i mem
+step vm = do
+  opcode <- value (iptr vm) (memory vm)
   ins <- instructionFromNumber opcode
-  (op ins, ) <$> execute ins m
+  (op ins, ) <$> execute ins vm
 
 runUntil ::
      (Operation -> Bool) -> VirtualMachine -> Maybe (Operation, VirtualMachine)
