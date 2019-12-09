@@ -44,15 +44,15 @@ operationFromNumber x = Map.lookup x opMap
         ]
 
 data Mode
-  = Reference
-  | Value
-  | Relative
+  = PositionMode
+  | ImmediateMode
+  | RelativeMode
   deriving (Show)
 
 modeFromNumber :: Integer -> Maybe Mode
-modeFromNumber 0 = Just Reference
-modeFromNumber 1 = Just Value
-modeFromNumber 2 = Just Relative
+modeFromNumber 0 = Just PositionMode
+modeFromNumber 1 = Just ImmediateMode
+modeFromNumber 2 = Just RelativeMode
 modeFromNumber _ = Nothing
 
 modesFromNumber :: Integer -> Maybe [Mode]
@@ -76,34 +76,35 @@ instructionFromNumber x = do
   pure (Instruction op ms)
 
 modeFor :: Int -> [Mode] -> Mode
-modeFor = atWithDefault Reference
+modeFor = atWithDefault PositionMode
 
 type Position = Integer
-
 type Memory = Map.Map Position Integer
 
-value :: Position -> Memory -> Maybe Integer
-value pos mem
+getM :: Position -> Memory -> Maybe Integer
+getM pos mem
   | pos < 0 = Nothing
   | otherwise = Just (Map.findWithDefault 0 pos mem)
 
-dereference :: Position -> Memory -> Maybe Integer
-dereference pos mem = do
-  ptr <- value pos mem
-  value ptr mem
-
-relative :: Position -> Position -> Memory -> Maybe Integer
-relative base pos mem = do
-  rptr <- value pos mem
-  value (base + rptr) mem
-
-getM :: Mode -> Position -> Position -> Memory -> Maybe Integer
-getM Reference _ = dereference
-getM Value     _ = value
-getM Relative  base = relative base
-
 setM :: Position -> Integer -> Memory -> Memory
 setM = Map.insert
+
+data Variable = Value Integer
+              | Reference Position
+
+variable :: Mode -> Position -> Position -> Memory -> Maybe Variable
+variable mode base pos mem = ctor mode base <$> getM pos mem
+  where ctor PositionMode _ = Reference
+        ctor ImmediateMode _ = Value
+        ctor RelativeMode base = Reference . (base +)
+
+valueOf :: Variable -> Memory -> Maybe Integer
+valueOf (Value x) _ = Just x
+valueOf (Reference pos) mem = getM pos mem
+
+addressOf :: Variable -> Maybe Position 
+addressOf (Value _) = Nothing
+addressOf (Reference pos) = Just pos
 
 data VirtualMachine =
   VirtualMachine
@@ -115,73 +116,105 @@ data VirtualMachine =
     }
   deriving (Show)
 
-getVM :: Mode -> Position -> VirtualMachine -> Maybe Integer
-getVM mode pos vm = getM mode (rbase vm) pos (memory vm)
+getVar :: Mode -> Position -> VirtualMachine -> Maybe Variable
+getVar mode pos vm = variable mode (rbase vm) pos (memory vm)
+
+getValue :: Mode -> Position -> VirtualMachine -> Maybe Integer
+getValue mode pos vm = do
+  var <- getVar mode pos vm
+  valueOf var (memory vm)
+
+setVar :: Variable -> Integer -> VirtualMachine -> Maybe VirtualMachine
+setVar (Value _) _ _ = Nothing
+setVar (Reference pos) val vm = Just vm { memory = setM pos val (memory vm) }
 
 initVm :: Memory -> [Integer] -> VirtualMachine
 initVm mem is =
   VirtualMachine {memory = mem, iptr = 0, rbase = 0, inputs = is, outputs = []}
 
 unary ::
-     (Integer -> VirtualMachine -> Maybe VirtualMachine)
+     (Variable -> VirtualMachine -> Maybe VirtualMachine)
   -> [Mode]
   -> VirtualMachine
   -> Maybe VirtualMachine
 unary f ms vm = do
-  var <- getVM (modeFor 0 ms) (iptr vm + 1) vm
+  var <- getVar (modeFor 0 ms) (iptr vm + 1) vm
   newVm <- f var vm
   pure newVm {iptr = iptr newVm + 2}
 
-input :: [Mode] -> VirtualMachine -> Maybe VirtualMachine
-input ms vm = do
-  ref <- value (iptr vm + 1) (memory vm)
+input :: Variable -> VirtualMachine -> Maybe VirtualMachine
+input var vm = do
   input <- headM (inputs vm)
-  pure vm {memory = setM ref input (memory vm), iptr = iptr vm + 2, inputs = tail (inputs vm)}
+  newVm <- setVar var input vm
+  pure newVm { inputs = tail (inputs vm) }
 
-output :: Integer -> VirtualMachine -> Maybe VirtualMachine
-output val vm = Just vm {outputs = val : outputs vm}
+output :: Variable -> VirtualMachine -> Maybe VirtualMachine
+output var vm = do
+  val <- valueOf var (memory vm)
+  pure vm {outputs = val : outputs vm}
 
-adjRBase :: Integer -> VirtualMachine -> Maybe VirtualMachine
-adjRBase val vm = Just vm { rbase = rbase vm + val }
+adjRBase :: Variable -> VirtualMachine -> Maybe VirtualMachine
+adjRBase var vm = do
+  val <- valueOf var (memory vm)
+  pure vm { rbase = rbase vm + val }
 
-jmp :: (Integer -> Bool) -> [Mode] -> VirtualMachine -> Maybe VirtualMachine
-jmp pred ms vm = do
-  val <- getVM (modeFor 0 ms) (iptr vm + 1) vm
-  dst <- getVM (modeFor 1 ms) (iptr vm + 2) vm
-  pure
-    vm
-      { iptr =
-          if pred val
-            then dst
-            else iptr vm + 3
-      }
+binary :: (Variable -> Variable -> VirtualMachine -> Maybe VirtualMachine)
+       -> [Mode]
+       -> VirtualMachine
+       -> Maybe VirtualMachine
+binary f ms vm = do
+  lvar <- getVar (modeFor 0 ms) (iptr vm + 1) vm
+  rvar <- getVar (modeFor 1 ms) (iptr vm + 2) vm
+  newVm <- f lvar rvar vm
+  pure newVm { iptr = iptr newVm + 3 }
 
-evalWrite ::
-     (Integer -> Integer -> Integer) -> [Mode] -> VirtualMachine -> Maybe VirtualMachine
-evalWrite f ms vm@(VirtualMachine mem i _ _ _) = do
-  lhs <- getVM (modeFor 0 ms) (i + 1) vm
-  rhs <- getVM (modeFor 1 ms) (i + 2) vm
-  dst <- value (i + 3) mem
-  pure vm {memory = setM dst (f lhs rhs) mem, iptr = i + 4}
+jmp :: (Integer -> Bool) -> Variable -> Variable -> VirtualMachine -> Maybe VirtualMachine
+jmp pred lvar rvar vm = do
+  val <- valueOf lvar (memory vm)
+  dst <- valueOf rvar (memory vm)
+  let newIptr = if pred val then dst - 3 else iptr vm
+  pure vm { iptr = newIptr }
+
+ternary :: (Variable -> Variable -> Variable -> VirtualMachine -> Maybe VirtualMachine)
+        -> [Mode]
+        -> VirtualMachine
+        -> Maybe VirtualMachine
+ternary f ms vm = do
+  var1 <- getVar (modeFor 0 ms) (iptr vm + 1) vm
+  var2 <- getVar (modeFor 1 ms) (iptr vm + 2) vm
+  var3 <- getVar (modeFor 2 ms) (iptr vm + 3) vm
+  newVm <- f var1 var2 var3 vm
+  pure newVm { iptr = iptr vm + 4 }
+
+evalWrite :: (Integer -> Integer -> Integer) 
+          -> Variable
+          -> Variable
+          -> Variable
+          -> VirtualMachine
+          -> Maybe VirtualMachine
+evalWrite f var1 var2 var3 vm = do
+  lhs <- valueOf var1 (memory vm)
+  rhs <- valueOf var2 (memory vm)
+  setVar var3 (f lhs rhs) vm
 
 execute :: Instruction -> VirtualMachine -> Maybe VirtualMachine
 execute (Instruction i ms) = callTable i ms
   where
     callTable :: Operation -> ([Mode] -> VirtualMachine -> Maybe VirtualMachine)
     callTable Done      = \_ vm -> Just vm
-    callTable Input     = input
+    callTable Input     = unary input
     callTable Output    = unary output
     callTable AdjustRelativeBase = unary adjRBase
-    callTable JumpTrue  = jmp (/= 0)
-    callTable JumpFalse = jmp (== 0)
-    callTable Add       = evalWrite (+)
-    callTable Multiply  = evalWrite (*)
-    callTable Less      = evalWrite (\x y -> if (x < y) then 1 else 0)
-    callTable Equals    = evalWrite (\x y -> if (x == y) then 1 else 0)
+    callTable JumpTrue  = binary (jmp (/= 0))
+    callTable JumpFalse = binary (jmp (== 0))
+    callTable Add       = ternary (evalWrite (+))
+    callTable Multiply  = ternary (evalWrite (*))
+    callTable Less      = ternary (evalWrite (\x y -> if (x < y) then 1 else 0))
+    callTable Equals    = ternary (evalWrite (\x y -> if (x == y) then 1 else 0))
 
 step :: VirtualMachine -> Maybe (Operation, VirtualMachine)
 step vm = do
-  opcode <- value (iptr vm) (memory vm)
+  opcode <- getM (iptr vm) (memory vm)
   ins <- instructionFromNumber opcode
   (op ins, ) <$> execute ins vm
 
