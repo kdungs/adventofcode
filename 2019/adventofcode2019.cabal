@@ -63,10 +63,9 @@ executable 04
 executable 05
   main-is:             05.hs
   default-language:    Haskell2010
-  build-depends:       base,
-                       containers,
-                       parsec,
-                       parsec-numbers
+  build-depends:       adventofcode2019,
+                       base,
+                       parsec
 
 executable 06
   main-is:             06.hs
@@ -95,5 +94,4 @@ executable 09
   default-language:    Haskell2010
   build-depends:       adventofcode2019,
                        base,
-                       containers,
                        parsec
