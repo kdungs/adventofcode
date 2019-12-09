@@ -93,7 +93,9 @@ dereference pos mem = do
   value ptr mem
 
 relative :: Position -> Position -> Memory -> Maybe Integer
-relative base pos mem = dereference (base + pos) mem
+relative base pos mem = do
+  rptr <- value pos mem
+  value (base + rptr) mem
 
 getM :: Mode -> Position -> Position -> Memory -> Maybe Integer
 getM Reference _ = dereference
@@ -130,10 +132,11 @@ unary f ms vm = do
   newVm <- f var vm
   pure newVm {iptr = iptr newVm + 2}
 
-input :: Integer -> VirtualMachine -> Maybe VirtualMachine
-input ref vm = do
+input :: [Mode] -> VirtualMachine -> Maybe VirtualMachine
+input ms vm = do
+  ref <- value (iptr vm + 1) (memory vm)
   input <- headM (inputs vm)
-  pure vm {memory = setM ref input (memory vm), inputs = tail (inputs vm)}
+  pure vm {memory = setM ref input (memory vm), iptr = iptr vm + 2, inputs = tail (inputs vm)}
 
 output :: Integer -> VirtualMachine -> Maybe VirtualMachine
 output val vm = Just vm {outputs = val : outputs vm}
@@ -166,7 +169,7 @@ execute (Instruction i ms) = callTable i ms
   where
     callTable :: Operation -> ([Mode] -> VirtualMachine -> Maybe VirtualMachine)
     callTable Done      = \_ vm -> Just vm
-    callTable Input     = unary input
+    callTable Input     = input
     callTable Output    = unary output
     callTable AdjustRelativeBase = unary adjRBase
     callTable JumpTrue  = jmp (/= 0)

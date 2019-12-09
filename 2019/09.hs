@@ -10,3 +10,5 @@ main = do
   let prog = rightOrError (parse programParser "" contents)
   let vm = initVm prog [1]
   print (run vm)
+  print (step vm)
+  print (step . snd <$> step vm)
