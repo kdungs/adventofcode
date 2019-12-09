@@ -13,6 +13,10 @@ headM :: [a] -> Maybe a
 headM []    = Nothing
 headM (x:_) = Just x
 
+rdigits :: Integral a => a -> [a]
+rdigits 0 = []
+rdigits x = x `mod` 10 : rdigits (x `div` 10)
+
 rightOrError :: Show a => Either a b -> b
 rightOrError (Left err) = error (show err)
 rightOrError (Right x)  = x
