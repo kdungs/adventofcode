@@ -19,7 +19,7 @@ findSolution prog target = headM (List.dropWhile isNotSolution space)
       case runWith noun verb of
         Just v -> v /= target
         _      -> True
-    runWith n v = run (initVmWithModification prog n v) >>= value 0 . memory
+    runWith n v = run (initVmWithModification prog n v) >>= getM 0 . memory
 
 -- Main
 main :: IO ()
@@ -28,7 +28,7 @@ main = do
   let mem = rightOrError (parse programParser "" contents)
   let vm = initVmWithModification mem 12 2
   let res = run vm
-  print $ res >>= (value 0 . memory)
+  print $ res >>= (getM 0 . memory)
   let target = 19690720
   let solution = findSolution mem target
   print solution
