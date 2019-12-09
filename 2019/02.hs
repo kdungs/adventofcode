@@ -2,7 +2,6 @@ import           Intcode
 import           Utils                         (headM, rightOrError)
 
 import qualified Data.List                     as List
-import qualified Data.Map.Strict               as Map
 import           Text.ParserCombinators.Parsec (parse)
 
 modify :: Integer -> Integer -> Memory -> Memory
