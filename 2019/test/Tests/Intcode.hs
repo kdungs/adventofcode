@@ -86,7 +86,7 @@ day5 =
         x < 8 QC.==> mapsInputToOutput pCheckLt8P x 1
     , QC.testProperty "pCheckLt8P(x ≥ 8) = 0" $ \x ->
         x >= 8 QC.==> mapsInputToOutput pCheckLt8P x 0
-    , testCase "pCheckEq8I(x ≠ 8) = 1" $ (pCheckEq8I, [8]) `produces` [1]
+    , testCase "pCheckEq8I(8) = 1" $ (pCheckEq8I, [8]) `produces` [1]
     , QC.testProperty "pCheckEq8I(x ≠ 8) = 0" $ \x ->
         x /= 8 QC.==> mapsInputToOutput pCheckEq8I x 0
     , QC.testProperty "pCheckLt8I(x < 8) = 1" $ \x ->
