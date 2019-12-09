@@ -24,7 +24,8 @@ test-suite test-aoc
   type:           exitcode-stdio-1.0
   main-is:        test-aoc.hs
   hs-source-dirs: test
-  other-modules:  Tests.Intcode
+  other-modules:  Tests.Intcode,
+                  Tests.Intcode.Chain
   build-depends:  adventofcode2019,
                   base,
                   containers,
