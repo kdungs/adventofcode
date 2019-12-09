@@ -9,6 +9,6 @@ main = do
   contents <- getContents
   let prog = rightOrError (parse programParser "" contents)
   let vm = initVm prog [1]
-  print $ outputs <$> (run vm)
+  print $ outputs <$> run vm
   let vm2 = initVm prog [5]
-  print $ outputs <$> (run vm2)
+  print $ outputs <$> run vm2
