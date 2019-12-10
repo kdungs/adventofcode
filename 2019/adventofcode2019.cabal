@@ -97,3 +97,9 @@ executable 09
   build-depends:       adventofcode2019,
                        base,
                        parsec
+
+executable 10
+  main-is:             10.hs
+  default-language:    Haskell2010
+  build-depends:       base,
+                       containers
