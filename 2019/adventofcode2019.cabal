@@ -112,3 +112,12 @@ executable 11
                        base,
                        containers,
                        parsec
+
+executable 12
+  main-is:             12.hs
+  default-language:    Haskell2010
+  build-depends:       adventofcode2019,
+                       base,
+                       containers,
+                       parsec,
+                       parsec-numbers
