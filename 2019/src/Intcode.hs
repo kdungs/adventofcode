@@ -8,6 +8,7 @@ import           Utils                                (atWithDefault, headM,
                                                        rdigits)
 
 import           Control.Monad                        (mapM)
+import qualified Data.List as List
 import qualified Data.Map.Strict                      as Map
 import           Text.ParserCombinators.Parsec
 import           Text.ParserCombinators.Parsec.Number (int)
@@ -24,6 +25,10 @@ data Operation
   | Equals
   | AdjustRelativeBase
   deriving (Show)
+
+isDone :: Operation -> Bool
+isDone Done = True
+isDone _    = False
 
 operationFromNumber :: Integer -> Maybe Operation
 operationFromNumber x = Map.lookup x opMap
@@ -247,10 +252,27 @@ runUntil predicate vm = do
 
 run :: VirtualMachine -> Maybe VirtualMachine
 run vm = snd <$> runUntil isDone vm
-  where
-    isDone :: Operation -> Bool
-    isDone Done = True
-    isDone _    = False
+
+stepOrWaitForInput :: VirtualMachine -> Maybe (Bool, Operation, VirtualMachine)
+stepOrWaitForInput vm = do
+  opcode <- getM (iptr vm) (memory vm)
+  let hasInputs = not (List.null (inputs vm))
+  ins@(Instruction op _) <- instructionFromNumber opcode
+  case op of
+    Input -> if hasInputs then
+                            (False, op,) <$> execute ins vm
+                          else
+                            pure (True, op, vm)
+    _ -> (False, op,) <$> execute ins vm
+
+
+runUntilInputIsRequired :: VirtualMachine -> Maybe (Bool, VirtualMachine)
+runUntilInputIsRequired vm = do
+  (waiting, op, nextVm) <- stepOrWaitForInput vm
+  if waiting || (isDone op) then
+                              pure (waiting, vm)
+                            else
+                              runUntilInputIsRequired nextVm
 
 -- Parser
 programParser :: Parser Memory
