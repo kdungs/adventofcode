@@ -8,7 +8,7 @@ import           Utils                                (atWithDefault, headM,
                                                        rdigits)
 
 import           Control.Monad                        (mapM)
-import qualified Data.List as List
+import qualified Data.List                            as List
 import qualified Data.Map.Strict                      as Map
 import           Text.ParserCombinators.Parsec
 import           Text.ParserCombinators.Parsec.Number (int)
@@ -259,20 +259,18 @@ stepOrWaitForInput vm = do
   let hasInputs = not (List.null (inputs vm))
   ins@(Instruction op _) <- instructionFromNumber opcode
   case op of
-    Input -> if hasInputs then
-                            (False, op,) <$> execute ins vm
-                          else
-                            pure (True, op, vm)
-    _ -> (False, op,) <$> execute ins vm
-
+    Input ->
+      if hasInputs
+        then (False, op, ) <$> execute ins vm
+        else pure (True, op, vm)
+    _ -> (False, op, ) <$> execute ins vm
 
 runUntilInputIsRequired :: VirtualMachine -> Maybe (Bool, VirtualMachine)
 runUntilInputIsRequired vm = do
   (waiting, op, nextVm) <- stepOrWaitForInput vm
-  if waiting || (isDone op) then
-                              pure (waiting, vm)
-                            else
-                              runUntilInputIsRequired nextVm
+  if waiting || (isDone op)
+    then pure (waiting, vm)
+    else runUntilInputIsRequired nextVm
 
 -- Parser
 programParser :: Parser Memory

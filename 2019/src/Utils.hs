@@ -22,5 +22,5 @@ rightOrError (Left err) = error (show err)
 rightOrError (Right x)  = x
 
 justOrError :: Maybe a -> a
-justOrError Nothing = error "Nothing"
+justOrError Nothing  = error "Nothing"
 justOrError (Just x) = x
