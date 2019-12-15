@@ -1,3 +1,5 @@
+{-# LANGUAGE TupleSections #-}
+
 import           Intcode
 import           Utils                         (headM, rightOrError)
 
@@ -133,6 +135,132 @@ expandFrontier bfs = do
     FoundSolution       -> pure newBfs
     ExpandedFrontier ex -> expandFrontier newBfs {getFrontier = ex}
 
+-- Part 2
+data DFS =
+  DFS
+    { getDroid :: Droid
+    , getPath  :: [Direction]
+    , getMap   :: Map.Map Point Response
+    }
+  deriving (Show)
+
+initDfs :: Droid -> DFS
+initDfs d =
+  DFS {getDroid = d, getPath = [], getMap = Map.singleton (Point 0 0) Moved}
+
+backtrack :: DFS -> Maybe DFS
+backtrack dfs
+  | List.null (getPath dfs) = Just dfs
+  | otherwise = do
+    let (lastStep:oldPath) = getPath dfs
+    (resp, oldDroid) <- tryMoveD (oppositeDir lastStep) (getDroid dfs)
+    case resp of
+      Wall -> Nothing -- This should never happen!
+      _    -> pure dfs {getDroid = oldDroid, getPath = oldPath}
+
+dfsExplore :: DFS -> Maybe DFS
+dfsExplore dfs = do
+  let droid = getDroid dfs
+  let pos = getPosition droid
+  let unseen dir = not (Map.member (move dir pos) (getMap dfs))
+  let interestingDirections = List.filter unseen [North, East, South, West]
+  let nextDir = headM interestingDirections
+  case nextDir of
+    Nothing -> do
+      old <- backtrack dfs
+      if List.null (getPath old)
+        then pure old
+        else dfsExplore old
+    Just d -> do
+      let nextPos = move d pos
+      let nextPath = d : getPath dfs
+      (resp, nextDroid) <- tryMoveD d droid
+      let nextMap = Map.insert nextPos resp (getMap dfs)
+      let nextDfs = dfs {getDroid = nextDroid, getMap = nextMap}
+      case resp of
+        Wall -> dfsExplore nextDfs
+        _    -> dfsExplore nextDfs {getPath = nextPath}
+
+-- Flood fill is also technically a BFS but much easier in this case since we
+-- don't have to make use of the droid anymore and can work directly with the
+-- points...
+data FloodFill =
+  FloodFill
+    { getMapFF      :: Map.Map Point Response
+    , getFillFF     :: Map.Map Point Integer
+    , getFrontierFF :: [Point]
+    , getStepFF     :: Integer
+    }
+  deriving (Show)
+
+initFloodFillFromDFS :: DFS -> Maybe FloodFill
+initFloodFillFromDFS dfs = do
+  let m = getMap dfs
+  (start, _) <- List.find isValueOxygen (Map.assocs m)
+  pure
+    FloodFill
+      { getMapFF = m
+      , getFillFF = Map.singleton start 0
+      , getFrontierFF = [start]
+      , getStepFF = 0
+      }
+  where
+    isValueOxygen :: (Point, Response) -> Bool
+    isValueOxygen (_, Oxygen) = True
+    isValueOxygen _           = False
+
+floodFill :: FloodFill -> FloodFill
+floodFill ff = do
+  let ns = neighbourhood <*> getFrontierFF ff
+  let nextFrontier = List.filter (\p -> canBeVisited p && notYetFilled p) ns
+  let nextStep = 1 + getStepFF ff
+  let nextFill = Map.fromList ((, nextStep) <$> nextFrontier)
+  if List.null nextFrontier
+    then ff
+    else floodFill
+           ff
+             { getFillFF = Map.union (getFillFF ff) nextFill
+             , getFrontierFF = nextFrontier
+             , getStepFF = nextStep
+             }
+  where
+    canBeVisited p =
+      case Map.lookup p (getMapFF ff) of
+        Just Moved -> True
+        _          -> False
+    notYetFilled p = not (Map.member p (getFillFF ff))
+
+drawMap :: (Maybe v -> Char) -> Map.Map Point v -> String
+drawMap showV m =
+  unlines $ do
+    y <- [miny .. maxy]
+    let row = [showV (Map.lookup (Point x y) m) | x <- [minx .. maxx]]
+    pure row
+  where
+    positions = Map.keys m
+    xs = getX <$> positions
+    ys = getY <$> positions
+    minx = List.minimum xs
+    miny = List.minimum ys
+    maxx = List.maximum xs
+    maxy = List.maximum ys
+
+showTile :: Maybe Response -> Char
+showTile Nothing       = '░'
+showTile (Just Wall)   = '█'
+showTile (Just Moved)  = ' '
+showTile (Just Oxygen) = 'o'
+
+drawDfsMap :: DFS -> String
+drawDfsMap = drawMap showTile . getMap
+
+showFill :: Maybe Integer -> Char
+showFill Nothing  = '█'
+showFill (Just i) = last (show i)
+
+drawFfMap :: FloodFill -> String
+drawFfMap = drawMap showFill . getFillFF
+
 -- Main
 main :: IO ()
 main = do
@@ -141,3 +269,9 @@ main = do
   let d = Droid {getVm = initVm prog [], getPosition = Point 0 0}
   let (Just bfs) = expandFrontier (initBfs d)
   print (getSteps bfs)
+  let (Just dfs) = dfsExplore (initDfs d)
+  print (getMap dfs)
+  putStrLn (drawDfsMap dfs)
+  let (Just ff) = floodFill <$> initFloodFillFromDFS dfs
+  putStrLn (drawFfMap ff)
+  print (getStepFF ff)
