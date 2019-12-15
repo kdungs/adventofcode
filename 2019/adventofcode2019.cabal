@@ -139,3 +139,12 @@ executable 14
                        containers,
                        parsec,
                        parsec-numbers
+
+executable 15
+  main-is:             15.hs
+  default-language:    Haskell2010
+  build-depends:       adventofcode2019,
+                       base,
+                       containers,
+                       parsec
+
