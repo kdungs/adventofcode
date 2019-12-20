@@ -5,7 +5,7 @@ challenges over the years. For historic reasons, the solutions for each year
 have a dedicated structure and might make use of several different programming
 languages and technologies. Here's a short overview:
 
- - [2019](2019/) (30 :star:)
+ - [2019](2019/) (38 :star:)
     - Haskell
  - [2018](2018/) (10 :star:)
     - C++14
