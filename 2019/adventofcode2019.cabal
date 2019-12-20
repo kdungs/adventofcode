@@ -173,3 +173,11 @@ executable 19
                        base,
                        containers,
                        parsec
+
+executable 20
+  main-is:             20.hs
+  default-language:    Haskell2010
+  build-depends:       adventofcode2019,
+                       base,
+                       containers,
+                       parsec
