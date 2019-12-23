@@ -25,10 +25,17 @@ instance Semigroup Op where
     | n == n2 = Op {getModulus = n, getA = (a * x) `mod` n, getB = (a * y + b) `mod` n}
     | otherwise = error "deck sizes dont match"
 
+powMod :: Integer -> Integer -> Integer -> Integer
+powMod base 1 m = base `mod` m
+powMod base pow m =
+  if even pow
+     then ((powMod base (pow `div` 2) m) ^ 2) `mod` m
+     else ((powMod base ((pow - 1) `div` 2) m) ^ 2 * base) `mod` m
+
 inv :: Op -> Op
 inv (Op n a b) = Op n a' b'
   where
-    a' = a ^ (n - 2) `mod` n
+    a' = powMod a (n - 2) n
     b' = -(a' * b) `mod` n
 
 stack :: Integer -> Op
