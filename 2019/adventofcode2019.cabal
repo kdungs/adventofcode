@@ -198,3 +198,18 @@ executable 22
                        containers,
                        parsec,
                        parsec-numbers
+
+executable 23
+  main-is:             23.hs
+  default-language:    Haskell2010
+  build-depends:       adventofcode2019,
+                       base,
+                       containers,
+                       parsec
+
+executable 24
+  main-is:             24.hs
+  default-language:    Haskell2010
+  build-depends:       adventofcode2019,
+                       base,
+                       containers
