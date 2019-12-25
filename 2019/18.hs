@@ -174,7 +174,10 @@ candidates g seen best s =
   sortByEdgeDist $ do
     let v1 = getV s
     let ks = Set.insert v1 (getKs s)
-    let d1 = seen Map.! (v1, getKs s)
+    let d1 =
+          case seen Map.!? (v1, getKs s) of
+            Nothing -> error ("Key " ++ show s ++ " not found!")
+            Just d  -> d
     (v2, e) <- Map.assocs (g Map.! v1)
     let d2 = d1 + getDist e
     let nextStep = Step {getV = v2, getKs = ks, getD = d2}
@@ -216,6 +219,10 @@ runDfs dfs
   | List.null (getStack dfs) = dfs
   | otherwise = runDfs (stepDfs dfs)
 
+-- Part 2
+player :: Maze -> (Int, Int)
+player maze = List.head (Map.keys (Map.filter (== '@') maze))
+
 main :: IO ()
 main = do
   contents <- getContents
@@ -224,3 +231,22 @@ main = do
   let ng = removeDoors g
   let dfs = initDfs ng
   print $ runDfs dfs
+  --
+  let p@(x, y) = player maze
+  print p
+  let newMaze =
+        Map.fromList
+          [ (p, '#')
+          , ((x - 1, y), '#')
+          , ((x + 1, y), '#')
+          , ((x, y - 1), '#')
+          , ((x, y + 1), '#')
+          , ((x - 1, y - 1), '1')
+          , ((x - 1, y + 1), '2')
+          , ((x + 1, y - 1), '3')
+          , ((x + 1, y + 1), '4')
+          ] `Map.union`
+        maze
+  let g2 = removeDoors (graph newMaze)
+  print $ g2 Map.! 'x'
+  -- After this, I just drew each subgraph and solved it by hand ¯\_(ツ)_/¯
