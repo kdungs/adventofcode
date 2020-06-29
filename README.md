@@ -8,8 +8,7 @@ languages and technologies. Here's a short overview:
  - [2019](2019/) (**50** :star:)
     - Haskell
  - [2018](2018/) (10 :star:)
-    - C++14
-    - [Bazel](https://bazel.io) build system
+    - Go
  - [2017](2017/) (28 :star:)
     - C++
     - Python
