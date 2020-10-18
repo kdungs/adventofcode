@@ -3,8 +3,8 @@ cc_library(
   hdrs = ["day1.h"],
   srcs = ["day1.cc"],
   deps = [
-    "@google_abseil//absl/container:flat_hash_set",
-    "@google_abseil//absl/types:optional",
+    "@com_google_absl//absl/container:flat_hash_set",
+    "@com_google_absl//absl/types:optional",
   ],
 )
 
@@ -13,7 +13,7 @@ cc_test(
   srcs = ["day1_test.cc"],
   deps = [
     ":day1",
-    "@google_test//:gtest_main",
+    "@com_google_googletest//:gtest_main",
   ],
 )
 
@@ -31,8 +31,8 @@ cc_library(
   hdrs = ["day2.h"],
   srcs = ["day2.cc"],
   deps = [
-    "@google_abseil//absl/container:flat_hash_map",
-    "@google_abseil//absl/strings",
+    "@com_google_absl//absl/container:flat_hash_map",
+    "@com_google_absl//absl/strings",
   ],
 )
 
@@ -41,7 +41,7 @@ cc_test(
   srcs = ["day2_test.cc"],
   deps = [
     ":day2",
-    "@google_test//:gtest_main",
+    "@com_google_googletest//:gtest_main",
   ],
 )
 
@@ -59,7 +59,7 @@ cc_library(
   hdrs = ["day3.h"],
   srcs = ["day3.cc"],
   deps = [
-    "@google_abseil//absl/types:optional",
+    "@com_google_absl//absl/types:optional",
   ],
 )
 
@@ -68,7 +68,7 @@ cc_test(
   srcs = ["day3_test.cc"],
   deps = [
     ":day3",
-    "@google_test//:gtest_main",
+    "@com_google_googletest//:gtest_main",
   ],
 )
 
@@ -94,7 +94,7 @@ cc_test(
   srcs = ["day5_test.cc"],
   deps = [
     ":day5",
-    "@google_test//:gtest_main",
+    "@com_google_googletest//:gtest_main",
   ],
 )
 
@@ -103,5 +103,32 @@ cc_binary(
   srcs = ["day5_main.cc"],
   deps = [
     ":day5",
+  ],
+)
+
+
+cc_library(
+  name = "day7",
+  hdrs = ["day7.h"],
+  srcs = ["day7.cc"],
+  deps = [
+      "@com_google_absl//absl/strings",
+  ],
+)
+
+cc_test(
+  name = "day7_test",
+  srcs = ["day7_test.cc"],
+  deps = [
+    ":day7",
+    "@com_google_googletest//:gtest_main",
+  ],
+)
+
+cc_binary(
+  name = "day7_main",
+  srcs = ["day7_main.cc"],
+  deps = [
+    ":day7",
   ],
 )
