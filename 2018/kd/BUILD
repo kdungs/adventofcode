@@ -132,3 +132,29 @@ cc_binary(
     ":day7",
   ],
 )
+
+
+cc_library(
+  name = "day8",
+  hdrs = ["day8.h"],
+  srcs = ["day8.cc"],
+  deps = [
+  ],
+)
+
+cc_test(
+  name = "day8_test",
+  srcs = ["day8_test.cc"],
+  deps = [
+    ":day8",
+    "@com_google_googletest//:gtest_main",
+  ],
+)
+
+cc_binary(
+  name = "day8_main",
+  srcs = ["day8_main.cc"],
+  deps = [
+    ":day8",
+  ],
+)
