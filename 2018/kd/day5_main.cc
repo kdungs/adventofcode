@@ -1,7 +1,7 @@
-#include "kd/day5.h"
-
 #include <iostream>
 #include <string>
+
+#include "kd/day5.h"
 
 int main(int argc, char *argv[]) {
   std::string input;

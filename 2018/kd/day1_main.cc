@@ -1,7 +1,7 @@
-#include "kd/day1.h"
-
 #include <iostream>
 #include <vector>
+
+#include "kd/day1.h"
 
 int main(int argc, char* argv[]) {
   // Read problem input from stdin

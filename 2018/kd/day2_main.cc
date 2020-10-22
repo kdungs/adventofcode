@@ -1,8 +1,8 @@
-#include "kd/day2.h"
-
 #include <iostream>
 #include <string>
 #include <vector>
+
+#include "kd/day2.h"
 
 int main(int argc, char *argv[]) {
   // Read puzzle input.
