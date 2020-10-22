@@ -1,0 +1,3 @@
+build --cxxopt="-std=c++17"
+build --cxxopt="-fdiagnostics-color"
+build --disk_cache=/tmp/bazelcache/

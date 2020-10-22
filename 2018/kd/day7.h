@@ -20,6 +20,17 @@ std::string Join(const std::vector<Node>& nodes);
 
 std::vector<Node> Kahn(const Graph& graph);
 
+// -------
+// Part II
+// -------
+
+using TimerFunction = std::function<int(const Node&)>;
+
+int NodeTime(const Node& node);
+
+int TimeKahnWithWorkers(const TimerFunction& timer, const Graph& graph,
+                        int num_workers);
+
 }  // namespace day7
 }  // namespace kd
 
