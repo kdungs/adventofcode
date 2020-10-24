@@ -11,4 +11,6 @@ int main(int argc, char* argv[]) {
   }
 
   std::cout << kd::day8::SumMetadata(tree) << std::endl;
+
+  std::cout << kd::day8::SumValues(tree) << std::endl;
 }

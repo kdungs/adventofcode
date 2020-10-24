@@ -23,6 +23,9 @@ int Traverse(MetadataVisitorFN&& visit, const std::vector<int>& tree, int pos) {
 
 int SumMetadata(const std::vector<int>& tree);
 
+// Part 2
+int SumValues(const std::vector<int>& tree);
+
 }  // namespace day8
 }  // namespace kd
 
