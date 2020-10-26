@@ -20,7 +20,7 @@ TEST(Part1, WorksForExamples) {
     auto maybe_input = ParseInput(kv.first);
     ASSERT_TRUE(maybe_input.has_value()) << "invalid input";
     const int expected = kv.second;
-    const int result = HighScore(input.value());
+    const int result = HighScore(maybe_input.value());
     EXPECT_EQ(expected, result) << "incorrect result";
   }
 }
