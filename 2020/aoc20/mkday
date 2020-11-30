@@ -1,0 +1,32 @@
+#!/usr/bin/zsh
+
+day="${1}"
+
+if [ "${day}" = "" ]; then
+  echo "day has to be set"
+  exit 1
+fi
+
+function evalTemplate {
+  src=${1}
+  dst=${2}
+  append=${3:=false}
+
+  res=$(sed s/\$\{day\}/"${day}"/g "${src}")
+  if [ "${append}" = true ]; then
+    if [ -f "${dst}" ]; then
+      echo "" >> "${dst}"
+      echo "" >> "${dst}"
+    fi
+    echo "$res" >> "${dst}"
+  else
+    echo "$res" > "${dst}"
+  fi
+}
+
+echo "Setting up day ${day}"
+evalTemplate "./.tpl/day.tpl.h" "./day${day}.h"
+evalTemplate "./.tpl/day.tpl.cc" "./day${day}.cc"
+evalTemplate "./.tpl/day_main.tpl.cc" "./day${day}_main.cc"
+evalTemplate "./.tpl/day_test.tpl.cc" "./day${day}_test.cc"
+evalTemplate "./.tpl/BUILD.tpl" "./BUILD" true
