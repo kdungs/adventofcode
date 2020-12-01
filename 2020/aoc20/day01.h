@@ -13,4 +13,4 @@ int Part2(const std::vector<int>& input);
 }  // namespace day01
 }  // namespace aoc20
 
-#endif  // KD_DAY01_H_
+#endif  // AOC20_DAY01_H_

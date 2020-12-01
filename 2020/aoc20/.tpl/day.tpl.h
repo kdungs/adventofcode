@@ -7,4 +7,4 @@ namespace day${day} {
 }  // namespace day${day}
 }  // namespace aoc20
 
-#endif  // KD_DAY${day}_H_
+#endif  // AOC20_DAY${day}_H_
