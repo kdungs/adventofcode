@@ -45,10 +45,7 @@ std::optional<std::vector<Input>> ParseInputs(
 template <typename PasswordPolicy>
 int CountValidPasswords(const std::vector<Input>& inputs,
                         PasswordPolicy is_valid_password) {
-  return std::count_if(inputs.begin(), inputs.end(),
-                       [&is_valid_password](const Input& input) {
-                         return is_valid_password(input);
-                       });
+  return std::count_if(inputs.begin(), inputs.end(), is_valid_password);
 }
 
 bool Part1Policy(const Input& input) {
