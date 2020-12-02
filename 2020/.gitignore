@@ -1,2 +1,3 @@
 input/
 bazel-*
+compile_commands.json
