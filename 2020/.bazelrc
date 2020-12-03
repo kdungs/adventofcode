@@ -3,3 +3,4 @@ build --cxxopt="-std=c++17"
 build --cxxopt="-fdiagnostics-color"
 build --disk_cache=/tmp/bazelcache/
 build --experimental_action_listener=//tools/actions:generate_compile_commands_listener
+test --test_output=errors
