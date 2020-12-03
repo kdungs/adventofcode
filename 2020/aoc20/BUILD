@@ -45,3 +45,28 @@ cc_binary(
         ":day02",
     ],
 )
+
+
+cc_library(
+    name = "day03",
+    srcs = ["day03.cc"],
+    hdrs = ["day03.h"],
+    deps = [],
+)
+
+cc_test(
+    name = "day03_test",
+    srcs = ["day03_test.cc"],
+    deps = [
+        ":day03",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_binary(
+    name = "day03_main",
+    srcs = ["day03_main.cc"],
+    deps = [
+        ":day03",
+    ],
+)
