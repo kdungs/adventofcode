@@ -1,7 +1,9 @@
 #include "aoc20/day03.h"
 
+#include <initializer_list>
 #include <optional>
 #include <string>
+#include <tuple>
 #include <vector>
 
 namespace aoc20 {

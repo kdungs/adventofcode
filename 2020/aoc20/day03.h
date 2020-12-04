@@ -1,11 +1,10 @@
 #ifndef AOC20_DAY03_H_
 #define AOC20_DAY03_H_
 
+#include <cstdint>
 #include <optional>
 #include <stdexcept>
 #include <string>
-#include <tuple>
-#include <unordered_set>
 #include <vector>
 
 namespace aoc20 {

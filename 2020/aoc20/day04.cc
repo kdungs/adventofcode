@@ -1,6 +1,7 @@
 #include "aoc20/day04.h"
 
 #include <algorithm>
+#include <initializer_list>
 #include <memory>
 #include <string>
 #include <unordered_set>

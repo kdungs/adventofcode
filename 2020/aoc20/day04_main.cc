@@ -1,4 +1,6 @@
 #include <iostream>
+#include <iterator>
+#include <string>
 
 #include "aoc20/day04.h"
 

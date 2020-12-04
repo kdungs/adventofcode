@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
   auto maybe_forest = aoc20::day03::ParseForest(lines);
   if (!maybe_forest.has_value()) {
     std::cerr << "unable to parse forest\n";
-    return EXIT_FAILURE;
+    return 1;
   }
   auto forest = maybe_forest.value();
 
