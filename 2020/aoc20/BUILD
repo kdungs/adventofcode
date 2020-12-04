@@ -70,3 +70,30 @@ cc_binary(
         ":day03",
     ],
 )
+
+
+cc_library(
+    name = "day04",
+    srcs = ["day04.cc"],
+    hdrs = ["day04.h"],
+    deps = [
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+cc_test(
+    name = "day04_test",
+    srcs = ["day04_test.cc"],
+    deps = [
+        ":day04",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_binary(
+    name = "day04_main",
+    srcs = ["day04_main.cc"],
+    deps = [
+        ":day04",
+    ],
+)
