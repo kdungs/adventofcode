@@ -3,10 +3,10 @@
 #include "gtest/gtest.h"
 
 TEST(Part1, WorksForExamples) {
-  EXPECT_EQ(357, "FBFBBFFRLR");
-  EXPECT_EQ(567, "BFFFBBFRRR");
-  EXPECT_EQ(119, "FFFBBBFRRR");
-  EXPECT_EQ(820, "BBFFBBFRLL");
+  EXPECT_EQ(357, aoc20::day05::GetSeatId("FBFBBFFRLR"));
+  EXPECT_EQ(567, aoc20::day05::GetSeatId("BFFFBBFRRR"));
+  EXPECT_EQ(119, aoc20::day05::GetSeatId("FFFBBBFRRR"));
+  EXPECT_EQ(820, aoc20::day05::GetSeatId("BBFFBBFRLL"));
 }
 
 TEST(Part2, WorksForExamples) {

@@ -10,6 +10,9 @@ namespace day05 {
 constexpr int kNumRows = 128;
 constexpr int kNumCols = 8;
 
+constexpr int kRowsBits = 7;
+constexpr int kColsBits = 3;
+
 int GetSeatId(const std::string& s);
 
 int Part1(const std::vector<std::string>& lines);

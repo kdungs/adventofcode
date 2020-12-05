@@ -9,15 +9,15 @@ build:
 test:
 	bazel test ...
 
-format: buildifier-check clangformat
+format: buildifier clang-format
 
-lint: buildifier-check clangformat-check cpplint-check
+lint: buildifier-check clang-format-check cpplint-check
 
 buildifier: $(BUILD_FILES)
 	buildifier $^
 
 buildifier-check: $(BUILD_FILES)
-	buildifier -lint $^
+	buildifier -mode check $^
 
 clang-format: $(CPP_FILES)
 	clang-format -i $^

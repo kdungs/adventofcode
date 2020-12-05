@@ -9,28 +9,19 @@
 namespace aoc20 {
 namespace day05 {
 
-int BinaryPartition(int min, int max, char cl, char cr, const std::string& s) {
-  int l = min;
-  int m = max / 2;
-  int r = max;
-
-  for (auto cmd : s) {
-    if (cmd == cl) {
-      // left half
-      r = m;
-      m = l + (r - l) / 2;
-    } else if (cmd == cr) {
-      // right half
-      l = m;
-      m = l + (r - l) / 2;
-    }
+int ExtractNumber(const std::string& s, int left, int right, char one) {
+  int num{0};
+  for (int idx{left}; idx < right; ++idx) {
+    num <<= 1;
+    num |= (s[idx] == one);
   }
-  return m;
+
+  return num;
 }
 
 int GetSeatId(const std::string& s) {
-  int row = BinaryPartition(0, kNumRows, 'F', 'B', s);
-  int col = BinaryPartition(0, kNumCols, 'L', 'R', s);
+  int row = ExtractNumber(s, 0, kRowsBits, 'B');
+  int col = ExtractNumber(s, kRowsBits, kRowsBits + kColsBits, 'R');
   return row * kNumCols + col;
 }
 
