@@ -119,3 +119,12 @@ cc_binary(
         ":day05",
     ],
 )
+
+cc_binary(
+    name = "day05_bench",
+    srcs = ["day05_bench.cc"],
+    deps = [
+        ":day05",
+        "@com_google_benchmark//:benchmark_main",
+    ],
+)

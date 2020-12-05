@@ -16,6 +16,10 @@ int Part1(const std::vector<std::string>& lines);
 
 int Part2(const std::vector<std::string>& lines);
 
+int Part2Version2(const std::vector<std::string>& lines);
+
+int Part2Version3(const std::vector<std::string>& lines);
+
 }  // namespace day05
 }  // namespace aoc20
 

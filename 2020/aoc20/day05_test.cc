@@ -13,4 +13,6 @@ TEST(Part2, WorksForExamples) {
   // We can't really unit test Part2 all that well without having a full input.
   // Since this is not given in the examples, and unit tests here only focus on
   // the examples, we're allowed to skip unit testing Part2, today. :)
+  //
+  // Instead we'll run some benchmarks on different implementations.
 }
