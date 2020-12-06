@@ -128,3 +128,27 @@ cc_binary(
         "@com_google_benchmark//:benchmark_main",
     ],
 )
+
+cc_library(
+    name = "day06",
+    srcs = ["day06.cc"],
+    hdrs = ["day06.h"],
+    deps = [],
+)
+
+cc_test(
+    name = "day06_test",
+    srcs = ["day06_test.cc"],
+    deps = [
+        ":day06",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_binary(
+    name = "day06_main",
+    srcs = ["day06_main.cc"],
+    deps = [
+        ":day06",
+    ],
+)
