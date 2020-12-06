@@ -21,15 +21,24 @@ struct Instruction {
   int c;
 };
 
+using Program = std::vector<Instruction>;
+
 struct Sample {
   Registers before;
   Registers after;
   Instruction instruction;
 };
 
-std::optional<std::vector<Sample>> ParseSamples(const std::vector<std::string>& lines);
+using Samples = std::vector<Sample>;
 
-int Part1(const std::vector<Sample>& samples);
+using SamplesAndProgram = std::tuple<Samples, Program>;
+
+std::optional<SamplesAndProgram> ParseInput(
+    const std::vector<std::string>& lines);
+
+int Part1(const Samples& samples);
+
+int Part2(const Samples& samples, const Program& program);
 
 }  // namespace day16
 }  // namespace aoc18
