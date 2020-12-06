@@ -17,7 +17,7 @@ buildifier: $(BUILD_FILES)
 	buildifier $^
 
 buildifier-check: $(BUILD_FILES)
-	buildifier -lint $^
+	buildifier -mode check $^
 
 clang-format: $(CPP_FILES)
 	clang-format -i $^

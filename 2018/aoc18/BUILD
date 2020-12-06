@@ -235,6 +235,7 @@ cc_library(
     srcs = ["day16.cc"],
     hdrs = ["day16.h"],
     deps = [
+        "@com_google_absl//absl/strings",
     ],
 )
 
