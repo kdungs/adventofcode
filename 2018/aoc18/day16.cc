@@ -1,7 +1,6 @@
 #include "aoc18/day16.h"
 
 #include <algorithm>
-#include <iostream>
 #include <numeric>
 #include <string>
 #include <vector>
@@ -77,25 +76,11 @@ Registers EqRR(Registers r, int a, int b, int c) {
   return r;
 }
 
-using OpcodeFn = std::function<Registers(Registers, int, int, int)>;
-
-struct Opcode {
-  const char* name;
-  OpcodeFn fn;
-
-  Registers operator()(Registers r, int a, int b, int c) const {
-    return fn(r, a, b, c);
-  }
-};
-
+using Opcode = std::function<Registers(Registers, int, int, int)>;
 constexpr std::size_t kNumOpcodes{16};
 static const std::array<Opcode, kNumOpcodes> kOpcodes{
-    Opcode{"AddR", AddR}, Opcode{"AddI", AddI}, Opcode{"MulR", MulR},
-    Opcode{"MulI", MulI}, Opcode{"BanR", BanR}, Opcode{"BanI", BanI},
-    Opcode{"BorR", BorR}, Opcode{"BorI", BorI}, Opcode{"SetR", SetR},
-    Opcode{"SetI", SetI}, Opcode{"GtIR", GtIR}, Opcode{"GtRI", GtRI},
-    Opcode{"GtRR", GtRR}, Opcode{"EqIR", EqIR}, Opcode{"EqRI", EqRI},
-    Opcode{"EqRR", EqRR}};
+    AddR, AddI, MulR, MulI, BanR, BanI, BorR, BorI,
+    SetR, SetI, GtIR, GtRI, GtRR, EqIR, EqRI, EqRR};
 
 std::optional<Registers> ParseRegisters(const std::string& line) {
   static const std::regex re(R"(^\w+:\s+\[(\d+), (\d+), (\d+), (\d+)\]$)");
