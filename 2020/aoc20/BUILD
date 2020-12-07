@@ -152,3 +152,29 @@ cc_binary(
         ":day06",
     ],
 )
+
+cc_library(
+    name = "day07",
+    srcs = ["day07.cc"],
+    hdrs = ["day07.h"],
+    deps = [
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+cc_test(
+    name = "day07_test",
+    srcs = ["day07_test.cc"],
+    deps = [
+        ":day07",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_binary(
+    name = "day07_main",
+    srcs = ["day07_main.cc"],
+    deps = [
+        ":day07",
+    ],
+)
