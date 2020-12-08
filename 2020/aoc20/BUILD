@@ -178,3 +178,30 @@ cc_binary(
         ":day07",
     ],
 )
+
+cc_library(
+    name = "day08",
+    srcs = ["day08.cc"],
+    hdrs = ["day08.h"],
+    deps = [
+        "@com_google_absl//absl/container:flat_hash_set",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+cc_test(
+    name = "day08_test",
+    srcs = ["day08_test.cc"],
+    deps = [
+        ":day08",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_binary(
+    name = "day08_main",
+    srcs = ["day08_main.cc"],
+    deps = [
+        ":day08",
+    ],
+)
