@@ -1,22 +1,19 @@
 #include "aoc20/day09.h"
 
 #include <algorithm>
-#include <deque>
 #include <vector>
 
 namespace aoc20 {
 namespace day09 {
 
 int Part1(const std::vector<int>& input, std::size_t preamble) {
-  // Read first preamble numbers into ringbuffer of size preamble.
-  // For each next number check if it's a pair; that's O(preamble^2) but O(1)
-  // since preamble is a constant.
-  std::deque<int> ring(input.begin(), input.begin() + preamble);
+  auto l = input.begin();
+  auto r = l + preamble;
 
-  const auto is_pair = [&ring](int num) -> bool {
-    for (int a : ring) {
-      for (int b : ring) {
-        if (a + b == num) {
+  const auto is_pair = [&l, &r](int num) -> bool {
+    for (auto ita{l}; ita != r; ++ita) {
+      for (auto itb{ita}; itb != r; ++itb) {
+        if (*ita + *itb == num) {
           return true;
         }
       }
@@ -24,13 +21,13 @@ int Part1(const std::vector<int>& input, std::size_t preamble) {
     return false;
   };
 
-  for (std::size_t idx{preamble}; idx < input.size(); ++idx) {
-    int num = input[idx];
+  while (r != input.end()) {
+    int num = *r;
     if (!is_pair(num)) {
       return num;
     }
-    ring.pop_front();
-    ring.push_back(num);
+    ++l;
+    ++r;
   }
 
   return 0;
