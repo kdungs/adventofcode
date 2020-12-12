@@ -279,3 +279,29 @@ cc_binary(
         ":day11",
     ],
 )
+
+cc_library(
+    name = "day12",
+    srcs = ["day12.cc"],
+    hdrs = ["day12.h"],
+    deps = [
+        "//aoc20/utils:point",
+    ],
+)
+
+cc_test(
+    name = "day12_test",
+    srcs = ["day12_test.cc"],
+    deps = [
+        ":day12",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_binary(
+    name = "day12_main",
+    srcs = ["day12_main.cc"],
+    deps = [
+        ":day12",
+    ],
+)

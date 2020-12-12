@@ -26,11 +26,12 @@ bool operator!=(const Point<T>& lhs, const Point<T>& rhs) {
 
 template <typename T>
 Point<T> operator+(const Point<T>& lhs, const Point<T>& rhs) {
-  return Point{
-    .x = lhs.x + rhs.x,
-    .y = lhs.y + rhs.y
+  return Point<T>{lhs.x + rhs.x, lhs.y + rhs.y};
+}
 
-  };
+template <typename T>
+Point<T> operator*(const T& a, const Point<T> p) {
+  return Point<T>{a * p.x, a * p.y};
 }
 
 template <typename T>
