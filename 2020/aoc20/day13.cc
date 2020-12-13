@@ -1,5 +1,6 @@
 #include "aoc20/day13.h"
 
+#include <iostream>
 #include <limits>
 #include <numeric>
 #include <stdexcept>
@@ -82,7 +83,7 @@ class Sequence {
   int64_t offset_;
 };
 
-int64_t Part2(const std::unordered_map<int, int>& busses) {
+int64_t Part2_old(const std::unordered_map<int, int>& busses) {
   std::vector<Sequence> seqs;
   seqs.reserve(busses.size());
   for (auto [offset, freq] : busses) {
@@ -91,6 +92,18 @@ int64_t Part2(const std::unordered_map<int, int>& busses) {
 
   Sequence res = std::reduce(seqs.begin(), seqs.end());
   return res(1);
+}
+
+int64_t Part2(const std::unordered_map<int, int>& busses) {
+  int64_t t{0};
+  int64_t step{1};
+  for (auto [offset, freq] : busses) {
+    while ((t + offset) % freq != 0) {
+      t += step;
+    }
+    step *= freq / std::gcd(freq, step);
+  }
+  return t;
 }
 
 }  // namespace day13
