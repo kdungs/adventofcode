@@ -45,55 +45,6 @@ int Part1(int target, const std::unordered_map<int, int>& busses) {
   return bestbus * bestdiff;
 }
 
-class Sequence {
- public:
-  Sequence(int64_t frequency, int64_t offset)
-      : frequency_{frequency}, offset_{offset} {}
-
-  Sequence() : Sequence(1, 0) {}
-
-  bool IsCandidate(int64_t t) const {
-    return (frequency_ + t + offset_) % frequency_ == 0;
-  }
-
-  int64_t Intersection(const Sequence& other) const {
-    for (int i{0}; i < std::numeric_limits<int>::max(); ++i) {
-      auto t = (*this)(i);
-      if (other.IsCandidate(t)) {
-        return t;
-      }
-    }
-    throw std::runtime_error("no intersection found");
-  }
-
-  Sequence operator+(const Sequence& other) const {
-    int64_t t = Intersection(other);
-    int64_t nf = frequency_ * other.frequency_;
-    int64_t no = nf - t;
-    return Sequence{nf, no};
-  }
-
-  int64_t operator()(int64_t x) const { return frequency_ * x - offset_; }
-
-  int64_t frequency() const { return frequency_; }
-  int64_t offset() const { return offset_; }
-
- private:
-  int64_t frequency_;
-  int64_t offset_;
-};
-
-int64_t Part2_old(const std::unordered_map<int, int>& busses) {
-  std::vector<Sequence> seqs;
-  seqs.reserve(busses.size());
-  for (auto [offset, freq] : busses) {
-    seqs.emplace_back(freq, offset);
-  }
-
-  Sequence res = std::reduce(seqs.begin(), seqs.end());
-  return res(1);
-}
-
 int64_t Part2(const std::unordered_map<int, int>& busses) {
   int64_t t{0};
   int64_t step{1};
