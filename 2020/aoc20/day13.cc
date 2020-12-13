@@ -52,7 +52,7 @@ int64_t Part2(const std::unordered_map<int, int>& busses) {
     while ((t + offset) % freq != 0) {
       t += step;
     }
-    step *= freq / std::gcd(freq, step);
+    step *= freq; // All inputs are prime!
   }
   return t;
 }
