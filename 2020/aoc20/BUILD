@@ -405,3 +405,31 @@ cc_binary(
         ":day16",
     ],
 )
+
+cc_library(
+    name = "day17",
+    srcs = ["day17.cc"],
+    hdrs = ["day17.h"],
+    deps = [
+        "@com_google_absl//absl/container:flat_hash_map",
+        "@com_google_absl//absl/container:flat_hash_set",
+        "@com_google_absl//absl/hash",
+    ],
+)
+
+cc_test(
+    name = "day17_test",
+    srcs = ["day17_test.cc"],
+    deps = [
+        ":day17",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_binary(
+    name = "day17_main",
+    srcs = ["day17_main.cc"],
+    deps = [
+        ":day17",
+    ],
+)
