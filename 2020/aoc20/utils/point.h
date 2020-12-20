@@ -2,6 +2,7 @@
 #define AOC20_UTILS_POINT_H_
 
 #include <functional>
+#include <ostream>
 
 namespace aoc20 {
 namespace utils {
@@ -43,6 +44,12 @@ struct PointHash {
     return hash;
   }
 };
+
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const Point<T>& p) {
+  os << '(' << p.x << ", " << p.y << ')';
+  return os;
+}
 
 }  // namespace utils
 }  // namespace aoc20

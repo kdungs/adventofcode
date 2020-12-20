@@ -485,3 +485,29 @@ cc_binary(
         ":day19",
     ],
 )
+
+cc_library(
+    name = "day20",
+    srcs = ["day20.cc"],
+    hdrs = ["day20.h"],
+    deps = [
+        "//aoc20/utils:point",
+    ],
+)
+
+cc_test(
+    name = "day20_test",
+    srcs = ["day20_test.cc"],
+    deps = [
+        ":day20",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_binary(
+    name = "day20_main",
+    srcs = ["day20_main.cc"],
+    deps = [
+        ":day20",
+    ],
+)
