@@ -14,6 +14,21 @@
 namespace aoc20 {
 namespace day20 {
 
+std::istream& operator>>(std::istream& is, Tile& t) {
+  std::string str;
+  std::getline(is, str, ' ');
+  is >> t.id;
+  std::getline(is, str);
+  for (std::size_t y{0}; y < kSize; ++y) {
+    std::getline(is, str);
+    for (std::size_t x{0}; x < kSize; ++x) {
+      t.data[y * kSize + x] = (str[x] == '#');
+    }
+  }
+  std::getline(is, str);
+  return is;
+}
+
 std::unordered_map<uint32_t, int> CountCandidates(const std::vector<Tile>& ts) {
   // Prepare all border configurations for faster lookup.
   // This vector is aligned with ts.
@@ -96,19 +111,6 @@ struct Image {
     return Image{.size = size, .pixels = flipped};
   }
 };
-
-std::ostream& operator<<(std::ostream& os, const Image& img) {
-  constexpr char one[] = "█";
-  constexpr char zero[] = " ";
-
-  for (int y{0}; y < img.size; ++y) {
-    for (int x{0}; x < img.size; ++x) {
-      os << (img.Get(x, y) ? one : zero);
-    }
-    os << '\n';
-  }
-  return os;
-}
 
 Image AssembleImage(const std::vector<Tile>& tiles) {
   // Since the borders seem to have exactly a 1:1 correspondence, we can

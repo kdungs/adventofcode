@@ -154,30 +154,7 @@ struct Tile {
   }
 };
 
-std::istream& operator>>(std::istream& is, Tile& t) {
-  std::string str;
-  std::getline(is, str, ' ');
-  is >> t.id;
-  std::getline(is, str);
-  for (std::size_t y{0}; y < kSize; ++y) {
-    std::getline(is, str);
-    for (std::size_t x{0}; x < kSize; ++x) {
-      t.data[y * kSize + x] = (str[x] == '#');
-    }
-  }
-  std::getline(is, str);
-  return is;
-}
-
-std::ostream& operator<<(std::ostream& os, const Tile& t) {
-  os << t.id << '\n';
-  for (std::size_t y{0}; y < kSize; ++y) {
-    std::copy(t.data.begin() + y * kSize, t.data.begin() + (y + 1) * kSize,
-              std::ostream_iterator<bool>(os, ""));
-    os << '\n';
-  }
-  return os;
-}
+std::istream& operator>>(std::istream& is, Tile& t);
 
 uint64_t Part1(const std::vector<Tile>& tiles);
 
