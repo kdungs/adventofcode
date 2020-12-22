@@ -537,3 +537,29 @@ cc_binary(
         ":day21",
     ],
 )
+
+cc_library(
+    name = "day22",
+    srcs = ["day22.cc"],
+    hdrs = ["day22.h"],
+    deps = [
+        "@com_google_absl//absl/hash",
+    ],
+)
+
+cc_test(
+    name = "day22_test",
+    srcs = ["day22_test.cc"],
+    deps = [
+        ":day22",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_binary(
+    name = "day22_main",
+    srcs = ["day22_main.cc"],
+    deps = [
+        ":day22",
+    ],
+)
