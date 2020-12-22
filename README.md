@@ -6,14 +6,14 @@ have a dedicated structure and might make use of several different programming
 languages and technologies. Here's a short overview:
 
 ```
-[2020] 28* (AoC++)
+[2020] 44* (AoC++)
 [2019] 50* (AoC++)
 [2018] 22*
 [2017] 28*
 [2016] 22*
 [2015] 50*
 
-Total stars: 200*
+Total stars: 216*
 ```
 
 * [2020](2020/): C++, [Bazel](https://bazel.build)
