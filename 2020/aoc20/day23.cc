@@ -6,8 +6,6 @@
 
 namespace aoc20 {
 namespace day23 {
-static constexpr std::size_t N = 9;
-
 class NextNumberGenerator {
  public:
   explicit NextNumberGenerator(int x, int max) : cur_{x}, max_{max} {};
@@ -50,51 +48,70 @@ void MoveLifted(Node* cur, Node* nxt) {
   l->prev = nxt;
 }
 
-Node* FindNext(Node* cur, int max) {
+Node* FindNext(std::vector<Node>& nodes, Node* cur, int max) {
   NextNumberGenerator nng{cur->val, max};
-  Node* start = cur->next->next->next->next;
-  // We don't have to try more than 4 times. Worst thing that can happen is
-  // that all three next candidates are currently lifted up.
-  for (std::size_t i{0}; i < 4; ++i) {
-    int target = nng.Next();
-    Node* it = start;
-    while (it != cur) {
-      if (it->val == target) {
-        return it;
-      }
-      it = it->next;
-    }
+  const Node* a = cur->next;
+  const Node* b = a->next;
+  const Node* c = b->next;
+  int val = nng.Next();
+  while (val == a->val || val == b->val || val == c->val) {
+    val = nng.Next();
   }
-  assert(false);  // we have to find a candidate
+  return &nodes[val - 1];
 }
 
-std::string Part1(const std::vector<int>& input) {
-  constexpr std::size_t kRounds = 100;
-
-  // Build circular linked list.
-  // Here, can already remember the index of the node with value 1 so we don't
-  // have to find it later. Its position in the _vector_ isn't going to change
-  // even if it moves around in the list.
-  std::size_t oneidx{0};
-  std::vector<Node> nodes(N, Node{0});
-  for (std::size_t i{0}; i < N; ++i) {
-    if (input[i] == 1) {
-      oneidx = i;
-    }
-    nodes[i].val = input[i];
-    nodes[i].prev = &nodes[(N + i - 1) % N];
-    nodes[i].next = &nodes[(i + 1) % N];
+// Produces a vector of nodes that are sorted such that their index in the
+// vector corresponds to their value - 1. Additionally, the nodes form a doubly
+// linked list according to the order given by input.
+std::vector<Node> NewGame(const std::vector<int>& input, std::size_t nums) {
+  std::vector<Node> nodes(nums, Node{0});
+  for (int i{0}; i < nums; ++i) {
+    nodes[i].val = i + 1;
+    nodes[i].prev = &nodes[(nums + i - 1) % nums];
+    nodes[i].next = &nodes[(i + 1) % nums];
   }
+  // Correct the pointers of the input nodes.
+  Node* nxt = &nodes[input.size() % nums];
+  Node* end = &nodes[nums - 1];
+  if (nums == input.size()) {
+    nxt = &nodes[input[0] - 1];
+    end = &nodes[input[input.size() - 1] - 1];
+  }
+  for (int i{0}; i < input.size(); ++i) {
+    int val = input[i];
+    Node* n = &nodes[val - 1];
+    if (i == 0) {
+      n->prev = end;
+      end->next = n;
+    } else {
+      n->prev = &nodes[input[i - 1] - 1];
+    }
+    if (i == input.size() - 1) {
+      n->next = nxt;
+      nxt->prev = n;
+    } else {
+      n->next = &nodes[input[i + 1] - 1];
+    }
+  }
+  return nodes;
+}
 
-  Node* cur = &nodes[0];
-  for (std::size_t round{0}; round < kRounds; ++round) {
-    Node* nxt = FindNext(cur, N);
+std::vector<Node> Play(const std::vector<int>& input, std::size_t nums,
+                       std::size_t rounds) {
+  std::vector<Node> nodes = NewGame(input, nums);
+  Node* cur = &nodes[input[0] - 1];
+  for (std::size_t round{0}; round < rounds; ++round) {
+    Node* nxt = FindNext(nodes, cur, nums);
     MoveLifted(cur, nxt);
     cur = cur->next;
   }
+  return nodes;
+}
 
+std::string Part1(const std::vector<int>& input) {
+  std::vector<Node> nodes = Play(input, 9, 100);
   // Find the one labelled 1 and build a string with all the nodes after it.
-  Node* one = &nodes[oneidx];
+  Node* one = &nodes[0];
   Node* it = one->next;
   std::string result;
   while (it != one) {
@@ -106,32 +123,9 @@ std::string Part1(const std::vector<int>& input) {
 }
 
 int64_t Part2(const std::vector<int>& input) {
-  constexpr std::size_t kRounds = 10000000;
-  constexpr std::size_t kNums = 1000000;
-  std::size_t oneidx{0};
-  std::vector<Node> nodes(kNums, Node{0});
-  for (std::size_t i{0}; i < kNums; ++i) {
-    int val = i + 1;
-    if (i < input.size()) {
-      val = input[i];
-      if (val == 1) {
-        oneidx = i;
-      }
-    }
-    nodes[i].val = val;
-    nodes[i].prev = &nodes[(kNums + i - 1) % kNums];
-    nodes[i].next = &nodes[(i + 1) % kNums];
-  }
-
-  Node* cur = &nodes[0];
-  for (std::size_t round{0}; round < kRounds; ++round) {
-    Node* nxt = FindNext(cur, kNums);
-    MoveLifted(cur, nxt);
-    cur = cur->next;
-  }
-
-  Node* one = &nodes[oneidx];
-  return one->next->val * one->next->next->val;
+  std::vector<Node> nodes = Play(input, 1000000, 10000000);
+  Node* one = &nodes[0];
+  return static_cast<int64_t>(one->next->val) * one->next->next->val;
 }
 
 }  // namespace day23
