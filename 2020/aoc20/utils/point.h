@@ -57,7 +57,7 @@ std::ostream& operator<<(std::ostream& os, const Point<T>& p) {
 
 namespace std {
 template <typename T>
-class hash<aoc20::utils::Point<T>> : aoc20::utils::PointHash<T> {};
+struct hash<aoc20::utils::Point<T>> : aoc20::utils::PointHash<T> {};
 }
 
 #endif  // AOC20_UTILS_POINT_H_

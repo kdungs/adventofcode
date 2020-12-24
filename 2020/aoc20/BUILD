@@ -587,3 +587,29 @@ cc_binary(
         ":day23",
     ],
 )
+
+cc_library(
+    name = "day24",
+    srcs = ["day24.cc"],
+    hdrs = ["day24.h"],
+    deps = [
+        "//aoc20/utils:point",
+    ],
+)
+
+cc_test(
+    name = "day24_test",
+    srcs = ["day24_test.cc"],
+    deps = [
+        ":day24",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_binary(
+    name = "day24_main",
+    srcs = ["day24_main.cc"],
+    deps = [
+        ":day24",
+    ],
+)
