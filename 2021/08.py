@@ -1,19 +1,5 @@
 #!/usr/bin/env python3
 
-digits = {
-    "abcefg": 0,
-    "cf": 1,
-    "acdeg": 2,
-    "acdfg": 3,
-    "bcdf": 4,
-    "abdfg": 5,
-    "abdefg": 6,
-    "acf": 7,
-    "abcdefg": 8,
-    "abcdfg": 9
-}
-
-
 def parse(line):
     ps, vs = line.split(" | ")
     # Order of letters does not matter; can use sets for easier intersections.
