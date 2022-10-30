@@ -6,6 +6,7 @@ have a dedicated structure and might make use of several different programming
 languages and technologies. Here's a short overview:
 
 ```
+[2021] 47* (AoC++)
 [2020] 50* (AoC++)
 [2019] 50* (AoC++)
 [2018] 22*
@@ -13,9 +14,10 @@ languages and technologies. Here's a short overview:
 [2016] 22*
 [2015] 50*
 
-Total stars: 222*
+Total stars: 269*
 ```
 
+* [2021](2021/): Python (quick and dirty)
 * [2020](2020/): C++, [Bazel](https://bazel.build)
 * [2019](2019/): Haskell
 * [2018](2018/): C++14, [Bazel](https://bazel.io)
