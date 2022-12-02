@@ -15,7 +15,7 @@ func resultScore(result int) int {
 }
 
 func score1(opponent int, player int) int {
-	result := ((player - opponent) + 1 + 3) % 3
+	result := (player - opponent + 4) % 3
 	return playerScore(player) + resultScore(result)
 }
 
